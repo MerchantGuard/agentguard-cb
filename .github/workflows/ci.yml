@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Stripe SDK version
+        run: npm run stripe:version
+      - name: Type check
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Tests
+        run: npm test
+      - name: Build
+        run: npm run build
+
+      # ---------- Anti-fabrication guards ----------
+      - name: Forbidden runtime LLM dependencies
+        run: |
+          if grep -E '"(openai|anthropic|langchain|@langchain/[^"]+|ai)"' package.json package-lock.json 2>/dev/null; then
+            echo "ERROR: forbidden runtime LLM dependency detected"
+            exit 1
+          fi
+      - name: Forbidden evidence field names
+        run: |
+          if grep -rEn 'narrative|freeform|generatedText|aiSummary|\bllm\b' --include='*.ts' --include='*.tsx' lib/ app/ scripts/ 2>/dev/null | grep -vE '(// |/\*|\*|forbidden|FORBIDDEN|test|spec|README|CONTRIBUTING|LEGAL|SECURITY)'; then
+            echo "ERROR: forbidden evidence field name detected"
+            exit 1
+          fi
+      - name: Forbidden uncategorized_text usage
+        run: |
+          if grep -rEn 'uncategorized_text' --include='*.ts' --include='*.tsx' lib/ app/ scripts/ 2>/dev/null | grep -vE '(// |/\*|\*|forbidden|FORBIDDEN|never|do not|DO NOT|test|spec|test-mode|README|CONTRIBUTING|LEGAL|SECURITY)'; then
+            echo "ERROR: uncategorized_text usage detected outside documented exceptions"
+            exit 1
+          fi
+      - name: Forbidden 'as any' casts
+        run: |
+          # Allow documented type-boundary file at lib/stripe/types.ts if it exists.
+          MATCHES=$(grep -rEn '\bas any\b' --include='*.ts' --include='*.tsx' lib/ app/ scripts/ 2>/dev/null | grep -v 'lib/stripe/types.ts' || true)
+          if [ -n "$MATCHES" ]; then
+            echo "ERROR: 'as any' cast detected outside lib/stripe/types.ts"
+            echo "$MATCHES"
+            exit 1
+          fi

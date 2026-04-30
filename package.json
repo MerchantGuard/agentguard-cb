@@ -1,0 +1,48 @@
+{
+  "name": "dispute-defender",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Deterministic Stripe dispute evidence compiler. Static templates only, no LLM-generated narrative, audit-logged from adapter response to PDF to Stripe submission.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "stripe:version": "tsx scripts/stripe-version.ts",
+    "jobs:process": "tsx scripts/jobs-process.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "cli:init": "tsx scripts/cli-init.ts",
+    "cli:test": "tsx scripts/cli-test.ts"
+  },
+  "dependencies": {
+    "@noble/ed25519": "^2.1.0",
+    "drizzle-orm": "^0.36.4",
+    "next": "^14.2.0",
+    "pdf-lib": "^1.17.1",
+    "postgres": "^3.4.5",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "stripe": "^22.1.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "dotenv": "^16.4.5",
+    "drizzle-kit": "^0.28.1",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.1.0"
+  }
+}
