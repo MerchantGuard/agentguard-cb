@@ -50,8 +50,11 @@ export async function processJobBatch(): Promise<ProcessBatchResult> {
      )
      RETURNING *;
   `);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rows = (claimed as unknown as { rows: any[] }).rows ?? (claimed as unknown as any[]);
+  type ClaimedRow = typeof disputeJobs.$inferSelect;
+  const claimedResult = claimed as unknown as { rows?: ClaimedRow[] } | ClaimedRow[];
+  const rows: ClaimedRow[] = Array.isArray(claimedResult)
+    ? claimedResult
+    : (claimedResult.rows ?? []);
 
   const errors: string[] = [];
   let succeeded = 0;

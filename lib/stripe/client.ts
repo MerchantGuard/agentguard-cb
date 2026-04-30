@@ -52,19 +52,11 @@ export interface StripeApiVersionInfo {
  */
 export function getStripeApiVersionInfo(): StripeApiVersionInfo {
   // Stripe.API_VERSION is the SDK's pinned default (set by stripe-node at build time)
-  const apiVersion = (Stripe as unknown as { PACKAGE_VERSION?: string; API_VERSION?: string }).API_VERSION || 'unknown';
-  // Read installed package version from package.json without requiring a runtime import
-  // (avoids polluting the bundle on Edge). For server-side scripts, package.json is fine.
-  let packageVersion = 'unknown';
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    packageVersion = require('stripe/package.json').version;
-  } catch {
-    // best-effort
-  }
-
+  const apiVersion = (Stripe as unknown as { API_VERSION?: string }).API_VERSION || 'unknown';
+  // Stripe's package exports map doesn't expose package.json, so we can't dynamically
+  // read the installed version. Run `npm list stripe` to inspect it directly.
+  const packageVersion = 'see `npm list stripe`';
   const ce3Supported = isApiVersionAtLeast(apiVersion, '2024-10-28.acacia');
-
   return { packageVersion, apiVersion, ce3Supported };
 }
 

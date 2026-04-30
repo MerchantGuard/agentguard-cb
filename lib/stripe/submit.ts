@@ -43,7 +43,8 @@ export async function submitDisputeEvidence(input: SubmitInput): Promise<SubmitR
 
   // 1. Retrieve dispute + confirm submission allowed
   const dispute = await stripe.disputes.retrieve(input.stripeDisputeId);
-  if (dispute.status === 'won' || dispute.status === 'lost' || dispute.status === 'charge_refunded') {
+  const TERMINAL_STATUSES: readonly string[] = ['won', 'lost', 'charge_refunded'];
+  if (TERMINAL_STATUSES.includes(dispute.status as string)) {
     throw new Error(`dispute ${input.stripeDisputeId} is terminal (${dispute.status}); cannot submit evidence`);
   }
   if (dispute.evidence_details?.submission_count && dispute.evidence_details.submission_count > 0) {

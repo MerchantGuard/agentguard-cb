@@ -6,7 +6,7 @@ export default function Home() {
       <h1 style={{ fontSize: 32, marginBottom: 8 }}>dispute-defender</h1>
       <p style={{ color: '#94A3B8', marginBottom: 32, lineHeight: 1.6 }}>
         Deterministic Stripe dispute evidence compiler. Static templates only, no
-        LLM-generated narrative. Audit-logged from adapter response to PDF to
+        model-generated text. Audit-logged from adapter response to PDF to
         Stripe submission.
       </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
