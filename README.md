@@ -1,8 +1,8 @@
 # dispute-defender
 
-A typed, deterministic helper library for assembling chargeback-evidence payloads in the shape required by Visa Compelling Evidence 3.0 (CE 3.0) and for staging them via the Stripe Disputes API for merchant human review prior to submission. Open-sourced by [MerchantGuard](https://merchantguard.ai).
+A typed, deterministic helper library for assembling chargeback-evidence payloads in the schema expected by the current Stripe Disputes API and staging them with `submit:false` for merchant human review prior to submission. Open-sourced by [MerchantGuard](https://merchantguard.ai).
 
-Your AI agent ships features. Customers dispute charges. This library compiles structured evidence from your own production data into the CE 3.0 payload shape, with a tamper-evident audit trail. **It does not file disputes with Visa, is not a Visa Third Party Agent, is not registered under the Visa TPA Registration Program, and has no contractual or technical relationship with Visa Inc., Stripe, Inc., or any acquirer.** References to those trademarks are nominative fair use under 15 U.S.C. § 1125 to identify the rules and APIs with which this library is designed to interoperate.
+Your AI agent ships features. Customers dispute charges. This library compiles structured evidence from your own production data, surfaces the eligibility statuses Stripe reports (`qualified`, `requires_action`, `not_qualified`), and writes a hash-chained audit trail. **It does not file disputes with Visa, is not a Visa Third Party Agent, is not registered under the Visa TPA Registration Program, and has no contractual or technical relationship with Visa Inc., Stripe, Inc., or any acquirer.** References to those trademarks are nominative use under the Lanham Act and the doctrine articulated in *New Kids on the Block v. News America Publ'g, Inc.*, 971 F.2d 302 (9th Cir. 1992), to identify the rules and APIs with which this library is designed to interoperate.
 
 ```
 npm install
@@ -87,7 +87,7 @@ This prints the installed `stripe` package version + `Stripe.API_VERSION` (the S
 
 Adapters pull merchant evidence from wherever the merchant stores it. The interface is in `lib/evidence/adapter.ts`. We ship a reference Stripe-only adapter (`lib/evidence/adapter.ts` → `stripeOnlyAdapter`) that uses only Stripe API data. It cannot provide customer IPs, device fingerprints, or product usage events because Stripe doesn't store those — the PDF generator includes "data not available" warnings instead.
 
-For real CE 3.0 qualification you'll want an adapter that pulls from your own application database. See `docs/adapters.md`.
+For merchants that independently determine a dispute may be eligible for Visa CE 3.0, you may need an adapter that can populate the fields Stripe's API requires from your own systems. See `docs/adapters.md`.
 
 ---
 
@@ -108,17 +108,9 @@ Webhook handler runs on Node runtime (NOT Edge) per Stripe's raw-body signature 
 
 ## Test mode
 
-Stripe provides a CE 3.0 test fixture:
+Stripe provides CE 3.0 test fixtures for sandbox environments. Stripe's test mode validates the matching-element requirements per CE 3.0 rules but does not validate prior-charge eligibility (Visa brand, reason code, day window).
 
-```
-Card Number:    4000000404000038
-PaymentMethod:  pm_card_createCe3EligibleDispute
-Token:          tok_createCe3EligibleDispute
-```
-
-Stripe doesn't validate prior charge eligibility (Visa brand, 10.4 reason, day window) in test mode but DOES validate matching elements per CE 3.0 rules. To force a final outcome use `evidence.uncategorized_text: 'winning_evidence' | 'losing_evidence'` (we don't use uncategorized_text in production code; this is test-mode only).
-
-See `docs/stripe-test-mode-ce3.md`.
+Internal test-mode mechanics, including Stripe's outcome-simulation strings, are documented at `docs/stripe-test-mode-ce3.md` (developer reference only — not for production use).
 
 ---
 
@@ -164,16 +156,15 @@ Section 8 (Disputes) governs how merchants respond. <https://stripe.com/legal/ss
 
 ---
 
-## Legal disclaimer summary
+## Legal summary
 
-- **AS IS, NO WARRANTY.** See LICENSE.
-- **Merchant is solely responsible** for the accuracy of all evidence.
-- **Submitting knowingly false evidence may expose you** to civil or criminal liability under 18 U.S.C. § 1343 (wire fraud), state UDAP statutes (CA Bus. & Prof. Code § 17200; NY Gen. Bus. Law § 349 as amended by the FAIR Business Practices Act, signed 19 Dec 2025; Fla. Stat. § 501.204; Tex. Bus. & Com. Code § 17.41 et seq.; 815 ILCS 505; Mass. Gen. Laws ch. 93A), and analogous foreign law.
-- **Not legal advice.** Consult licensed counsel.
-- **No outcome guarantee.** Issuers retain sole discretion on dispute resolution.
-- **Anti-inducement.** Pursuant to *MGM Studios, Inc. v. Grokster, Ltd.*, 545 U.S. 913 (2005), the publisher disclaims any purpose, intent, or design to induce, encourage, or facilitate the submission of false, fabricated, or materially misleading evidence.
+- **AS IS, NO WARRANTY.** See `LICENSE` (clean MIT).
+- **Merchant is solely responsible** for the accuracy of all evidence and for compliance with applicable law.
+- **No outcome guarantee.** CE 3.0 qualification is determined by Stripe, the issuing bank, and Visa Resolve Online — not by this Software.
+- **Submitting knowingly false evidence** may give rise to civil or criminal liability. Consult counsel.
+- **Not legal advice.**
 
-Full text in `LEGAL.md`. Anti-fabrication rider in `LICENSE`. Patent marking in `PATENTS.md`. Export-control posture in `EXPORT.md`. Contributor sign-off requirements in `DCO.md`.
+Detail in `LEGAL.md`. Non-binding use guidelines in `DISCLAIMER.md`. Patent notice in `PATENTS.md`. Export-control posture in `EXPORT.md`. Contributor sign-off in `DCO.md`. Privacy and data-handling for support channels in `LEGAL.md` § "Privacy and data protection."
 
 ---
 
