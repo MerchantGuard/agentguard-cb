@@ -1,8 +1,8 @@
 # dispute-defender
 
-**Deterministic Stripe dispute evidence compiler** for merchants. Built and open-sourced by [MerchantGuard](https://merchantguard.ai).
+A typed, deterministic helper library for assembling chargeback-evidence payloads in the shape required by Visa Compelling Evidence 3.0 (CE 3.0) and for staging them via the Stripe Disputes API for merchant human review prior to submission. Open-sourced by [MerchantGuard](https://merchantguard.ai).
 
-Your AI agent ships features. Customers dispute charges. This tool compiles structured evidence from your own production data into Visa Compelling Evidence 3.0 (CE 3.0) compliant submissions, with a tamper-evident audit trail.
+Your AI agent ships features. Customers dispute charges. This library compiles structured evidence from your own production data into the CE 3.0 payload shape, with a tamper-evident audit trail. **It does not file disputes with Visa, is not a Visa Third Party Agent, is not registered under the Visa TPA Registration Program, and has no contractual or technical relationship with Visa Inc., Stripe, Inc., or any acquirer.** References to those trademarks are nominative fair use under 15 U.S.C. § 1125 to identify the rules and APIs with which this library is designed to interoperate.
 
 ```
 npm install
@@ -16,10 +16,12 @@ npm run dev
 
 ## What this tool DOES NOT do
 
-- **Does NOT generate, fabricate, embellish, or modify evidence.** Static templates only. PR-blocked at the CI level.
-- **Does NOT use LLMs to write dispute narratives.** No `openai`, `anthropic`, `langchain`, or `ai` runtime dependencies. Imports are CI-blocked.
+- **Does NOT generate, fabricate, embellish, or modify evidence.** Static templates only. PR-blocked at the CI level (greps for `openai`, `anthropic`, `gemini`, `groq`, `mistral`, `llama`, `cohere`, `gpt-`, `claude-`, `prompt:`, `narrative`, `freeform_text`, `uncategorized_text`).
+- **Does NOT use LLMs to write dispute narratives.** No `openai`, `anthropic`, `langchain`, `gemini`, or `ai` runtime dependencies. Imports are CI-blocked.
 - **Does NOT make legal claims on the merchant's behalf.** This is a data compiler, not a legal authority.
-- **Does NOT guarantee dispute wins.** Outcomes are at the issuer's sole discretion.
+- **Does NOT guarantee dispute wins, CE 3.0 qualification, or any specific issuer or acquirer outcome.** CE 3.0 qualification is determined by Visa Resolve Online (VROL) and the issuing bank under the Visa Core Rules; outcomes are not within this library's control. See Visa's [Compelling Evidence 3.0 Merchant Readiness](https://usa.visa.com/content/dam/VCOM/regional/na/us/support-legal/documents/compelling-evidence-3.0-merchant-readiness-mar2023.pdf) document (March 2023) and the Visa Core Rules for the authoritative criteria.
+- **Is NOT endorsed, certified, audited, or "approved" by Visa Inc., Mastercard Inc., Stripe Inc., or any acquirer.**
+- **Is NOT a substitute for the merchant's own legal, compliance, and acquirer obligations.**
 
 If you want LLM-assisted dispute narratives, this is the wrong tool. dispute-defender is the deliberate counter-trend: structured, deterministic, auditable.
 
@@ -166,11 +168,12 @@ Section 8 (Disputes) governs how merchants respond. <https://stripe.com/legal/ss
 
 - **AS IS, NO WARRANTY.** See LICENSE.
 - **Merchant is solely responsible** for the accuracy of all evidence.
-- **Submitting knowingly false evidence may expose you** to civil or criminal liability.
+- **Submitting knowingly false evidence may expose you** to civil or criminal liability under 18 U.S.C. § 1343 (wire fraud), state UDAP statutes (CA Bus. & Prof. Code § 17200; NY Gen. Bus. Law § 349 as amended by the FAIR Business Practices Act, signed 19 Dec 2025; Fla. Stat. § 501.204; Tex. Bus. & Com. Code § 17.41 et seq.; 815 ILCS 505; Mass. Gen. Laws ch. 93A), and analogous foreign law.
 - **Not legal advice.** Consult licensed counsel.
 - **No outcome guarantee.** Issuers retain sole discretion on dispute resolution.
+- **Anti-inducement.** Pursuant to *MGM Studios, Inc. v. Grokster, Ltd.*, 545 U.S. 913 (2005), the publisher disclaims any purpose, intent, or design to induce, encourage, or facilitate the submission of false, fabricated, or materially misleading evidence.
 
-Full text in `LEGAL.md`.
+Full text in `LEGAL.md`. Anti-fabrication rider in `LICENSE`. Patent marking in `PATENTS.md`. Export-control posture in `EXPORT.md`. Contributor sign-off requirements in `DCO.md`.
 
 ---
 

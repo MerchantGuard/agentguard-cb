@@ -1,9 +1,19 @@
 {
-  "name": "dispute-defender",
+  "name": "@merchantguard/dispute-defender",
   "version": "0.2.0",
   "private": true,
-  "description": "Deterministic Stripe dispute evidence compiler. Static templates only, no LLM-generated narrative, audit-logged from adapter response to PDF to Stripe submission.",
+  "description": "Typed, deterministic helper library for assembling chargeback-evidence payloads in the shape required by Visa Compelling Evidence 3.0 and staging them via the Stripe Disputes API for merchant human review prior to submission. Static templates only, no LLM-generated narrative, audit-logged.",
   "license": "MIT",
+  "patents": "https://github.com/MerchantGuard/dispute-defender/blob/main/PATENTS.md",
+  "homepage": "https://github.com/MerchantGuard/dispute-defender#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MerchantGuard/dispute-defender.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MerchantGuard/dispute-defender/issues"
+  },
+  "author": "Dunecrest Ventures Inc.",
   "engines": {
     "node": ">=20.0.0"
   },

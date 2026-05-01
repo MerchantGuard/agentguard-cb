@@ -30,14 +30,30 @@ jobs:
       # ---------- Anti-fabrication guards ----------
       - name: Forbidden runtime LLM dependencies
         run: |
-          if grep -E '"(openai|anthropic|langchain|@langchain/[^"]+|ai)"' package.json package-lock.json 2>/dev/null; then
+          if grep -E '"(openai|anthropic|@anthropic-ai/[^"]+|langchain|@langchain/[^"]+|@google/generative-ai|gemini|groq|mistralai|@mistralai/[^"]+|cohere-ai|@cohere-ai/[^"]+|llamaindex|llama|replicate|together-ai|ai)"' package.json package-lock.json 2>/dev/null; then
             echo "ERROR: forbidden runtime LLM dependency detected"
+            exit 1
+          fi
+      - name: Forbidden LLM model identifiers in source
+        run: |
+          if grep -rEn '\bgpt-[0-9]|\bclaude-[a-z0-9]|\bgemini-[0-9]|\bllama-?[0-9]|\bmistral-[a-z]|\bcohere\.|"prompt"\s*:\s*"' --include='*.ts' --include='*.tsx' --include='*.js' --include='*.json' lib/ app/ scripts/ 2>/dev/null | grep -vE '(// |/\*|\*|forbidden|FORBIDDEN|test|spec)'; then
+            echo "ERROR: LLM model identifier or prompt template detected in source"
             exit 1
           fi
       - name: Forbidden evidence field names
         run: |
-          if grep -rEn 'narrative|freeform|generatedText|aiSummary|\bllm\b' --include='*.ts' --include='*.tsx' lib/ app/ scripts/ 2>/dev/null | grep -vE '(// |/\*|\*|forbidden|FORBIDDEN|test|spec|README|CONTRIBUTING|LEGAL|SECURITY)'; then
+          if grep -rEn 'narrative|freeform|freeform_text|generatedText|aiSummary|\bllm\b' --include='*.ts' --include='*.tsx' lib/ app/ scripts/ 2>/dev/null | grep -vE '(// |/\*|\*|forbidden|FORBIDDEN|test|spec|README|CONTRIBUTING|LEGAL|SECURITY)'; then
             echo "ERROR: forbidden evidence field name detected"
+            exit 1
+          fi
+      - name: DCO sign-off check on PR commits
+        if: github.event_name == 'pull_request'
+        run: |
+          MISSING=$(git log --format='%h %s%n%b' ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | awk '/^[a-f0-9]{7,} /{c=$1; sig=0} /^Signed-off-by:/{sig=1} /^$/{if(c && !sig)print c; c=""}' || true)
+          if [ -n "$MISSING" ]; then
+            echo "ERROR: commits missing DCO Signed-off-by line:"
+            echo "$MISSING"
+            echo "Run: git commit --amend -s   (or:  git rebase HEAD~N --signoff)"
             exit 1
           fi
       - name: Forbidden uncategorized_text usage
