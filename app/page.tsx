@@ -16,7 +16,7 @@ export default function Home() {
         <a href="/api/webhooks/stripe" style={{ color: '#94A3B8', textDecoration: 'none', fontSize: 14 }}>
           /api/webhooks/stripe — Stripe webhook endpoint
         </a>
-        <a href="https://github.com/MerchantGuard/dispute-defender" style={{ color: '#94A3B8', textDecoration: 'none', fontSize: 14 }}>
+        <a href="https://github.com/MerchantGuard/agentguard-cb" style={{ color: '#94A3B8', textDecoration: 'none', fontSize: 14 }}>
           → README on GitHub
         </a>
       </div>

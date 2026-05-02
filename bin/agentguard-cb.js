@@ -1,18 +1,17 @@
 #!/usr/bin/env node
 /**
- * dispute-defender CLI entry.
+ * AgentGuard CB CLI entry.
  *
  * Currently routes a single subcommand:
- *   dispute-defender mcp   → starts the stdio MCP server (dist/mcp-server.cjs)
+ *   agentguard-cb mcp   → starts the stdio MCP server (dist/mcp-server.js)
  *
  * Lives in bin/ rather than src/ so the shebang is preserved without
  * tsup banner gymnastics. Kept tiny so tsup never has to touch it.
  *
- * The package is "type": "module" but this file uses .js with CommonJS
- * require() because we want the shebang to be the literal first byte.
- * To make that work in an ESM package we wrap everything in an async
- * IIFE so top-level await + import() are usable, and we never use
- * top-level `return`.
+ * The package is "type": "module" but this file uses .js with dynamic
+ * import() because we want the shebang to be the literal first byte.
+ * Everything is wrapped in an async IIFE so top-level await + import()
+ * are usable, and we never use top-level `return`.
  */
 
 (async () => {
@@ -26,14 +25,14 @@
   if (isHelp) {
     process.stderr.write(
       [
-        'dispute-defender — anti-fabrication chargeback evidence library',
+        'AgentGuard CB — anti-fabrication chargeback evidence library',
         '',
         'Subcommands:',
         '  mcp        Start the stdio MCP server (for Claude Desktop, Cursor, Cline, etc.)',
         '  help       Show this help',
         '',
-        'Library use: import { ... } from "@merchantguard/dispute-defender"',
-        'Docs:        https://github.com/MerchantGuard/dispute-defender',
+        'Library use: import { ... } from "@merchantguard/agentguard-cb"',
+        'Docs:        https://github.com/MerchantGuard/agentguard-cb',
         '',
       ].join('\n'),
     );
@@ -48,7 +47,7 @@
   }
 
   process.stderr.write(
-    `dispute-defender: unknown subcommand "${subcommand}". Try "dispute-defender help".\n`,
+    `agentguard-cb: unknown subcommand "${subcommand}". Try "agentguard-cb help".\n`,
   );
   process.exit(1);
 })();

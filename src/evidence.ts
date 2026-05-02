@@ -1,5 +1,5 @@
 /**
- * Subpath export: @merchantguard/dispute-defender/evidence
+ * Subpath export: @merchantguard/agentguard-cb/evidence
  *
  * Re-exports evidence schemas + CE 3.0 evaluation and payload builders.
  * Exists so consumers who only need evidence assembly can import a smaller

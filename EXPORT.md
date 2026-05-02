@@ -10,7 +10,7 @@ For purposes of the Export Administration Regulations (EAR), 15 C.F.R. Parts 730
 
 ## Publicly available source code
 
-This Software is distributed as publicly available source code at https://github.com/MerchantGuard/dispute-defender and at https://www.npmjs.com/package/@merchantguard/dispute-defender, free of charge to any party that wishes to obtain it, with no end-user agreement, no charge, and no restriction other than the MIT License in `LICENSE`. Pursuant to 15 C.F.R. § 734.3(b)(3) and Note to § 734.3(b)(3), publicly available encryption source code that is not subject to an express agreement for the payment of a licensing fee or royalty for commercial production or sale of any product developed using the source code is **not subject to the EAR**.
+This Software is distributed as publicly available source code at https://github.com/MerchantGuard/agentguard-cb and at https://www.npmjs.com/package/@merchantguard/agentguard-cb, free of charge to any party that wishes to obtain it, with no end-user agreement, no charge, and no restriction other than the MIT License in `LICENSE`. Pursuant to 15 C.F.R. § 734.3(b)(3) and Note to § 734.3(b)(3), publicly available encryption source code that is not subject to an express agreement for the payment of a licensing fee or royalty for commercial production or sale of any product developed using the source code is **not subject to the EAR**.
 
 ## Object code
 

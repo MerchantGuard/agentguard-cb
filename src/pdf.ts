@@ -1,5 +1,5 @@
 /**
- * Subpath export: @merchantguard/dispute-defender/pdf
+ * Subpath export: @merchantguard/agentguard-cb/pdf
  *
  * Re-exports the PDF generation + signed manifest primitives. Use this
  * subpath if you only need to render evidence PDFs and verify their

@@ -1,10 +1,10 @@
 /**
- * @merchantguard/dispute-defender
+ * @merchantguard/agentguard-cb
  *
  * Public library API for dispute-defender. This file is the single
  * entry point published to npm; consumers should `import { ... } from
- * "@merchantguard/dispute-defender"`. Subpath exports are available via
- * `@merchantguard/dispute-defender/evidence`, `/audit`, `/pdf`, and
+ * "@merchantguard/agentguard-cb"`. Subpath exports are available via
+ * `@merchantguard/agentguard-cb/evidence`, `/audit`, `/pdf`, and
  * `/adapters` for tree-shake-friendly use.
  *
  * Library scope (what we publish): evidence schemas, CE 3.0 eligibility

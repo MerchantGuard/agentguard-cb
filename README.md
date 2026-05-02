@@ -17,7 +17,7 @@ npm run dev
 ## Use as a library (npm)
 
 ```bash
-npm install @merchantguard/dispute-defender
+npm install @merchantguard/agentguard-cb
 ```
 
 ```ts
@@ -25,7 +25,7 @@ import {
   evaluateVisaCe3Eligibility,
   buildStripeVisaCe3EnhancedEvidence,
   customerEvidenceBundleSchema,
-} from '@merchantguard/dispute-defender';
+} from '@merchantguard/agentguard-cb';
 
 const bundle = customerEvidenceBundleSchema.parse(yourBundle);
 const eligibility = evaluateVisaCe3Eligibility(bundle);
@@ -37,10 +37,10 @@ if (eligibility.qualified) {
 
 Subpath imports are also available for tree-shake-friendly use:
 
-- `@merchantguard/dispute-defender/evidence` — schemas + CE 3.0 eligibility + payload assembly
-- `@merchantguard/dispute-defender/audit` — Ed25519 hash-chained audit primitives
-- `@merchantguard/dispute-defender/pdf` — PDF generation + signed manifest verification
-- `@merchantguard/dispute-defender/adapters` — `EvidenceAdapter` interface + reference adapter
+- `@merchantguard/agentguard-cb/evidence` — schemas + CE 3.0 eligibility + payload assembly
+- `@merchantguard/agentguard-cb/audit` — Ed25519 hash-chained audit primitives
+- `@merchantguard/agentguard-cb/pdf` — PDF generation + signed manifest verification
+- `@merchantguard/agentguard-cb/adapters` — `EvidenceAdapter` interface + reference adapter
 
 ---
 
@@ -63,7 +63,7 @@ dispute-defender ships a stdio Model Context Protocol server so AI agents (Claud
   "mcpServers": {
     "dispute-defender": {
       "command": "npx",
-      "args": ["-y", "@merchantguard/dispute-defender", "mcp"]
+      "args": ["-y", "@merchantguard/agentguard-cb", "mcp"]
     }
   }
 }
@@ -74,7 +74,7 @@ dispute-defender ships a stdio Model Context Protocol server so AI agents (Claud
 **One-shot test from a terminal:**
 
 ```bash
-npx -y @merchantguard/dispute-defender mcp
+npx -y @merchantguard/agentguard-cb mcp
 ```
 
 It will start a stdio server. Send `{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}` on stdin to see the tool catalog.

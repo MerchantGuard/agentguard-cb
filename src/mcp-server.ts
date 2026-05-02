@@ -24,7 +24,7 @@
  *     "mcpServers": {
  *       "dispute-defender": {
  *         "command": "npx",
- *         "args": ["-y", "@merchantguard/dispute-defender", "mcp"]
+ *         "args": ["-y", "@merchantguard/agentguard-cb", "mcp"]
  *       }
  *     }
  *   }
@@ -51,14 +51,14 @@ import { verifyManifestSignature, sha256Hex } from '../lib/pdf/generate';
 
 // ─── Server identity ──────────────────────────────────────────────────────
 const SERVER_INFO = {
-  name: '@merchantguard/dispute-defender',
+  name: '@merchantguard/agentguard-cb',
   version: '0.3.0',
 };
 
 // ─── Logging (MUST go to stderr; stdio MCP uses stdout for JSON-RPC) ──────
 const log = (msg: string, meta?: Record<string, unknown>) => {
   const line = meta ? `${msg} ${JSON.stringify(meta)}` : msg;
-  process.stderr.write(`[dispute-defender-mcp] ${line}\n`);
+  process.stderr.write(`[agentguard-cb mcp] ${line}\n`);
 };
 
 // ─── Tool input schemas ───────────────────────────────────────────────────
@@ -280,11 +280,11 @@ async function handleVerifyManifest(args: unknown): Promise<CallToolResult> {
 
 async function handleDescribe(): Promise<CallToolResult> {
   return ok({
-    name: '@merchantguard/dispute-defender',
+    name: '@merchantguard/agentguard-cb',
     version: SERVER_INFO.version,
     license: 'MIT',
-    repository: 'https://github.com/MerchantGuard/dispute-defender',
-    npm: 'https://www.npmjs.com/package/@merchantguard/dispute-defender',
+    repository: 'https://github.com/MerchantGuard/agentguard-cb',
+    npm: 'https://www.npmjs.com/package/@merchantguard/agentguard-cb',
     capabilities: {
       visa_ce3: {
         description:
@@ -311,16 +311,16 @@ async function handleDescribe(): Promise<CallToolResult> {
       no_dispute_submission_from_mcp: true,
       default_human_review: true,
       legal_doc:
-        'https://github.com/MerchantGuard/dispute-defender/blob/main/LEGAL.md',
+        'https://github.com/MerchantGuard/agentguard-cb/blob/main/LEGAL.md',
       anti_fabrication_doc:
-        'https://github.com/MerchantGuard/dispute-defender/blob/main/DISCLAIMER.md',
+        'https://github.com/MerchantGuard/agentguard-cb/blob/main/DISCLAIMER.md',
     },
     patent_status: {
       provisionals_filed: ['63/983,615', '63/983,621', '63/983,843', '63/984,626'],
       assignee: 'Dunecrest Ventures Inc.',
       filed: '2026-02-17',
       patents_doc:
-        'https://github.com/MerchantGuard/dispute-defender/blob/main/PATENTS.md',
+        'https://github.com/MerchantGuard/agentguard-cb/blob/main/PATENTS.md',
     },
   });
 }

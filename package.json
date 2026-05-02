@@ -1,17 +1,17 @@
 {
-  "name": "@merchantguard/dispute-defender",
-  "version": "0.3.0",
+  "name": "@merchantguard/agentguard-cb",
+  "version": "1.0.0",
   "private": false,
-  "description": "Typed, deterministic helper library for assembling Visa Compelling Evidence 3.0 chargeback-evidence payloads in the shape required by the Stripe Disputes API. Static templates only, no LLM-generated narrative, Ed25519 hash-chained audit log. Ships with a stdio MCP server for AI-agent workflows.",
+  "description": "AgentGuard CB — typed, deterministic library for assembling Visa Compelling Evidence 3.0 chargeback evidence in the shape required by the Stripe Disputes API. Static templates only, no LLM-generated narrative, Ed25519 hash-chained audit log. Ships with a stdio MCP server for AI-agent workflows. Part of the AgentGuard™ family from MerchantGuard®.",
   "license": "MIT",
-  "patents": "https://github.com/MerchantGuard/dispute-defender/blob/main/PATENTS.md",
-  "homepage": "https://github.com/MerchantGuard/dispute-defender#readme",
+  "patents": "https://github.com/MerchantGuard/agentguard-cb/blob/main/PATENTS.md",
+  "homepage": "https://github.com/MerchantGuard/agentguard-cb#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MerchantGuard/dispute-defender.git"
+    "url": "git+https://github.com/MerchantGuard/agentguard-cb.git"
   },
   "bugs": {
-    "url": "https://github.com/MerchantGuard/dispute-defender/issues"
+    "url": "https://github.com/MerchantGuard/agentguard-cb/issues"
   },
   "author": "Dunecrest Ventures Inc.",
   "engines": {
@@ -22,7 +22,7 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "dispute-defender": "./bin/dispute-defender.js"
+    "agentguard-cb": "./bin/agentguard-cb.js"
   },
   "files": [
     "dist",
@@ -92,8 +92,10 @@
     "cli:test": "tsx scripts/cli-test.ts"
   },
   "keywords": [
-    "stripe",
+    "agentguard",
+    "agentguard-cb",
     "chargeback",
+    "stripe",
     "dispute",
     "visa",
     "compelling-evidence-3.0",
@@ -102,8 +104,7 @@
     "model-context-protocol",
     "ed25519",
     "audit-log",
-    "merchantguard",
-    "agentguard"
+    "merchantguard"
   ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",

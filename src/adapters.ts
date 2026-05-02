@@ -1,5 +1,5 @@
 /**
- * Subpath export: @merchantguard/dispute-defender/adapters
+ * Subpath export: @merchantguard/agentguard-cb/adapters
  *
  * Re-exports the EvidenceAdapter interface and the stripe-only reference
  * adapter. Implement EvidenceAdapter to integrate dispute-defender with

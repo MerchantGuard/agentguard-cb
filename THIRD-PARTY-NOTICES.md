@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-`@merchantguard/dispute-defender` redistributes the following third-party
+`@merchantguard/agentguard-cb` redistributes the following third-party
 production dependencies. Each is included subject to the terms of its own
 license. Generated via `npx license-checker --production`.
 
