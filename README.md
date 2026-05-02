@@ -1,5 +1,7 @@
 # AgentGuard CB
 
+> Language: **English** · [Español (LATAM)](README.es.md) · [Português (Brasil)](README.pt-BR.md)
+
 A typed, deterministic helper library for assembling chargeback-evidence payloads in the schema expected by the current Stripe Disputes API and staging them with `submit:false` for merchant human review prior to submission. Open-sourced by [MerchantGuard](https://merchantguard.ai). Part of the AgentGuard family.
 
 Your AI agent ships features. Customers dispute charges. This library compiles structured evidence from your own production data, surfaces the eligibility statuses Stripe reports (`qualified`, `requires_action`, `not_qualified`), and writes a hash-chained audit trail. **It does not file disputes with Visa, is not a Visa Third Party Agent, is not registered under the Visa TPA Registration Program, and has no contractual or technical relationship with Visa Inc., Stripe, Inc., or any acquirer.** References to those trademarks are nominative use under the Lanham Act and the doctrine articulated in *New Kids on the Block v. News America Publ'g, Inc.*, 971 F.2d 302 (9th Cir. 1992), to identify the rules and APIs with which this library is designed to interoperate.
