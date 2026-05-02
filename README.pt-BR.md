@@ -81,9 +81,10 @@ await store.append({
 
 const events = await store.list('dp_001');
 console.log(renderEventLogText(events));
-// [2026-05-02T18:00:00Z] system:agentguard-cb  Webhook do Stripe recebido: charge.dispute.created
-// [2026-05-02T18:00:01Z] system:agentguard-cb  Elegibilidade Visa CE 3.0 avaliada: QUALIFIED
-//                              Priors selecionados: ch_a + ch_b (janela 120-365 dias)
+// [2026-05-02T18:00:00Z] system:agentguard-cb  Stripe webhook received: charge.dispute.created
+// [2026-05-02T18:00:01Z] system:agentguard-cb  Visa CE 3.0 eligibility evaluated: QUALIFIED
+//                              Priors selected: ch_a + ch_b (window 120-365 days)
+// (a saída do renderer é atualmente só em inglês. localização para português planejada para v1.2)
 
 const verification = await verifyChain('dp_001', events);
 // { eventsChecked: 2, hashChainValid: true, signaturesChecked: 0, signaturesValid: 0, errors: [] }
@@ -104,7 +105,7 @@ AgentGuard CB inclui um servidor stdio do Model Context Protocol para que agente
 - `canonical_json_hash` — serialização JSON canônica + SHA-256 hex (primitiva de cadeia de auditoria)
 - `verify_manifest_signature` — verifica uma assinatura Ed25519 sobre um `ManifestPayload` previamente gerado
 - `append_event` (v1.1) — adiciona um evento tipado ao log legível por humanos
-- `render_event_log` (v1.1) — renderiza a cadeia em `text` (português plano), `csv` ou `json`
+- `render_event_log` (v1.1) — renderiza a cadeia em `text` (texto plano), `csv` ou `json`
 - `verify_chain` (v1.1) — percorre a cadeia e reporta evidência de adulteração
 - `describe_agentguard_cb` — capacidades de alto nível, postura de segurança e status de patentes / licença
 
