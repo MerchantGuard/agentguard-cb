@@ -52,7 +52,7 @@ import { verifyManifestSignature, sha256Hex } from '../lib/pdf/generate';
 // ─── Server identity ──────────────────────────────────────────────────────
 const SERVER_INFO = {
   name: '@merchantguard/agentguard-cb',
-  version: '0.3.0',
+  version: '1.0.0',
 };
 
 // ─── Logging (MUST go to stderr; stdio MCP uses stdout for JSON-RPC) ──────
