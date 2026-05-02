@@ -1,7 +1,7 @@
 {
   "name": "@merchantguard/dispute-defender",
   "version": "0.2.0",
-  "private": true,
+  "private": false,
   "description": "Typed, deterministic helper library for assembling chargeback-evidence payloads in the shape required by Visa Compelling Evidence 3.0 and staging them via the Stripe Disputes API for merchant human review prior to submission. Static templates only, no LLM-generated narrative, audit-logged.",
   "license": "MIT",
   "patents": "https://github.com/MerchantGuard/dispute-defender/blob/main/PATENTS.md",
