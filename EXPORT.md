@@ -6,15 +6,15 @@ This Software uses Ed25519 digital signatures via `@noble/ed25519` to sign a has
 
 ## "Standard cryptography" determination
 
-For purposes of the Export Administration Regulations (EAR), 15 C.F.R. Parts 730–774, the cryptography incorporated in this Software is "standard cryptography" as that term is used in 15 C.F.R. § 742.15. The Software does not perform "non-standard cryptography" within the meaning of § 742.15(b)(2), and the email-notification procedure described in § 742.15(b)(2) is not required for this Software.
+For purposes of the Export Administration Regulations (EAR), 15 C.F.R. Parts 730–774, the cryptography incorporated in this Software uses published, standards-based algorithms (Ed25519 per IETF RFC 8032 and NIST SP 800-186). The Software does not implement non-standard cryptography, key escrow, proprietary modes, or cryptographic algorithms outside the published standards.
 
 ## Publicly available source code
 
-This Software is distributed as publicly available source code at https://github.com/MerchantGuard/agentguard-cb and at https://www.npmjs.com/package/@merchantguard/agentguard-cb, free of charge to any party that wishes to obtain it, with no end-user agreement, no charge, and no restriction other than the MIT License in `LICENSE`. Pursuant to 15 C.F.R. § 734.3(b)(3) and Note to § 734.3(b)(3), publicly available encryption source code that is not subject to an express agreement for the payment of a licensing fee or royalty for commercial production or sale of any product developed using the source code is **not subject to the EAR**.
+This Software is distributed as publicly available source code at https://github.com/MerchantGuard/agentguard-cb and at https://www.npmjs.com/package/@merchantguard/agentguard-cb, free of charge to any party that wishes to obtain it, with no end-user agreement, no charge, and no restriction other than the MIT License in `LICENSE`. The publicly-available encryption source code framework under 15 C.F.R. § 734.3(b)(3) requires that the controlling Bureau of Industry and Security (BIS) and ENC Encryption Request Coordinator notification described in 15 C.F.R. § 742.15(b) be sent before the source code can be treated as "not subject to the EAR." The publisher's compliance with that notification requirement is a question for export counsel; users of this Software should not rely on this file as legal advice and should consult their own counsel regarding their specific export-control obligations, including any obligations under the EAR, the OFAC sanctions regime, or applicable foreign law.
 
 ## Object code
 
-Object code (the npm tarball produced by `npm pack` and published to the npm registry) compiled from the publicly available source code above is also not subject to the EAR pursuant to 15 C.F.R. § 740.13(e).
+The current EAR framework treats object code corresponding to publicly available encryption source code that has been notified pursuant to § 742.15(b) as also not subject to the EAR. Users distributing or re-exporting either the source code or the npm tarball should confirm the current status of any required notifications with export counsel before doing so.
 
 ## OFAC sanctions
 
