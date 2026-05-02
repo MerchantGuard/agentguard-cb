@@ -1,8 +1,8 @@
 {
   "name": "@merchantguard/dispute-defender",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": false,
-  "description": "Typed, deterministic helper library for assembling chargeback-evidence payloads in the shape required by Visa Compelling Evidence 3.0 and staging them via the Stripe Disputes API for merchant human review prior to submission. Static templates only, no LLM-generated narrative, audit-logged.",
+  "description": "Typed, deterministic helper library for assembling Visa Compelling Evidence 3.0 chargeback-evidence payloads in the shape required by the Stripe Disputes API. Static templates only, no LLM-generated narrative, Ed25519 hash-chained audit log. Ships with a stdio MCP server for AI-agent workflows.",
   "license": "MIT",
   "patents": "https://github.com/MerchantGuard/dispute-defender/blob/main/PATENTS.md",
   "homepage": "https://github.com/MerchantGuard/dispute-defender#readme",
@@ -17,14 +17,73 @@
   "engines": {
     "node": ">=20.0.0"
   },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "dispute-defender": "./bin/dispute-defender.js"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "lib",
+    "LICENSE",
+    "README.md",
+    "LEGAL.md",
+    "DISCLAIMER.md",
+    "DCO.md",
+    "PATENTS.md",
+    "EXPORT.md",
+    "THIRD-PARTY-NOTICES.md",
+    "CONTRIBUTING.md",
+    "compliance"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./evidence": {
+      "types": "./dist/evidence.d.ts",
+      "import": "./dist/evidence.js",
+      "require": "./dist/evidence.cjs"
+    },
+    "./audit": {
+      "types": "./dist/audit.d.ts",
+      "import": "./dist/audit.js",
+      "require": "./dist/audit.cjs"
+    },
+    "./pdf": {
+      "types": "./dist/pdf.d.ts",
+      "import": "./dist/pdf.js",
+      "require": "./dist/pdf.cjs"
+    },
+    "./adapters": {
+      "types": "./dist/adapters.d.ts",
+      "import": "./dist/adapters.js",
+      "require": "./dist/adapters.cjs"
+    },
+    "./mcp-server": {
+      "types": "./dist/mcp-server.d.ts",
+      "import": "./dist/mcp-server.js",
+      "require": "./dist/mcp-server.cjs"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build:lib": "bash scripts/build-lib.sh",
+    "build:next": "next build",
+    "build": "bash scripts/build-lib.sh && next build",
+    "prepublishOnly": "bash scripts/build-lib.sh",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "mcp": "tsx src/mcp-server.ts",
     "stripe:version": "tsx scripts/stripe-version.ts",
     "jobs:process": "tsx scripts/jobs-process.ts",
     "db:generate": "drizzle-kit generate",
@@ -32,7 +91,22 @@
     "cli:init": "tsx scripts/cli-init.ts",
     "cli:test": "tsx scripts/cli-test.ts"
   },
+  "keywords": [
+    "stripe",
+    "chargeback",
+    "dispute",
+    "visa",
+    "compelling-evidence-3.0",
+    "ce3",
+    "mcp",
+    "model-context-protocol",
+    "ed25519",
+    "audit-log",
+    "merchantguard",
+    "agentguard"
+  ],
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@noble/ed25519": "^2.1.0",
     "drizzle-orm": "^0.36.4",
     "next": "^14.2.0",
@@ -51,6 +125,7 @@
     "drizzle-kit": "^0.28.1",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.0",
+    "tsup": "^8.5.1",
     "tsx": "^4.19.0",
     "typescript": "^5.5.0",
     "vitest": "^2.1.0"

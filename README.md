@@ -14,6 +14,73 @@ npm run dev
 
 ---
 
+## Use as a library (npm)
+
+```bash
+npm install @merchantguard/dispute-defender
+```
+
+```ts
+import {
+  evaluateVisaCe3Eligibility,
+  buildStripeVisaCe3EnhancedEvidence,
+  customerEvidenceBundleSchema,
+} from '@merchantguard/dispute-defender';
+
+const bundle = customerEvidenceBundleSchema.parse(yourBundle);
+const eligibility = evaluateVisaCe3Eligibility(bundle);
+if (eligibility.qualified) {
+  const payload = buildStripeVisaCe3EnhancedEvidence(bundle, eligibility.selectedPriors);
+  // pass payload to your own Stripe SDK call to dispute.update with submit:false
+}
+```
+
+Subpath imports are also available for tree-shake-friendly use:
+
+- `@merchantguard/dispute-defender/evidence` — schemas + CE 3.0 eligibility + payload assembly
+- `@merchantguard/dispute-defender/audit` — Ed25519 hash-chained audit primitives
+- `@merchantguard/dispute-defender/pdf` — PDF generation + signed manifest verification
+- `@merchantguard/dispute-defender/adapters` — `EvidenceAdapter` interface + reference adapter
+
+---
+
+## Use from an AI agent (MCP server)
+
+dispute-defender ships a stdio Model Context Protocol server so AI agents (Claude Desktop, Cursor, Cline, Continue, etc.) can call its primitives during coding and ops workflows. The MCP server is **read-only and pure-functional**: it never calls the Stripe API, never writes to a database, and never submits a dispute. Submission and persistence remain the merchant's responsibility, which matches the [LEGAL.md](./LEGAL.md) posture.
+
+**Tools exposed:**
+
+- `evaluate_ce3_eligibility` — score a `CustomerEvidenceBundle` for Visa Compelling Evidence 3.0
+- `build_ce3_evidence` — assemble the Stripe-shape `enhanced_evidence` payload (returns the typed object only; you submit it yourself)
+- `canonical_json_hash` — canonical JSON serialization + SHA-256 hex digest (audit chain primitive)
+- `verify_manifest_signature` — verify an Ed25519 signature over a previously-generated `ManifestPayload`
+- `describe_dispute_defender` — high-level capabilities, safety posture, and patent / license status
+
+**Claude Desktop install:** add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "dispute-defender": {
+      "command": "npx",
+      "args": ["-y", "@merchantguard/dispute-defender", "mcp"]
+    }
+  }
+}
+```
+
+**Cursor install:** add to `~/.cursor/mcp.json` with the same shape. The same config also works for Cline, Continue, Windsurf, and any other client that speaks stdio MCP.
+
+**One-shot test from a terminal:**
+
+```bash
+npx -y @merchantguard/dispute-defender mcp
+```
+
+It will start a stdio server. Send `{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}` on stdin to see the tool catalog.
+
+---
+
 ## What this tool DOES NOT do
 
 - **Does NOT generate, fabricate, embellish, or modify evidence.** Static templates only. PR-blocked at the CI level (greps for `openai`, `anthropic`, `gemini`, `groq`, `mistral`, `llama`, `cohere`, `gpt-`, `claude-`, `prompt:`, `narrative`, `freeform_text`, `uncategorized_text`).
