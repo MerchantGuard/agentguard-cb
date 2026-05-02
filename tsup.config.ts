@@ -7,6 +7,7 @@ export default defineConfig({
     audit: 'src/audit.ts',
     pdf: 'src/pdf.ts',
     adapters: 'src/adapters.ts',
+    'event-log': 'src/event-log.ts',
     'mcp-server': 'src/mcp-server.ts',
   },
   format: ['esm', 'cjs'],
