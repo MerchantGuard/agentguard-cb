@@ -41,6 +41,53 @@ Subpath imports are also available for tree-shake-friendly use:
 - `@merchantguard/agentguard-cb/audit` — Ed25519 hash-chained audit primitives
 - `@merchantguard/agentguard-cb/pdf` — PDF generation + signed manifest verification
 - `@merchantguard/agentguard-cb/adapters` — `EvidenceAdapter` interface + reference adapter
+- `@merchantguard/agentguard-cb/event-log` — buyer-readable event log (v1.1)
+
+---
+
+## Buyer-readable event log (v1.1)
+
+Finance and legal reviewers do not read cryptographic chains. They read bank statements. v1.1 adds a buyer-readable event log layer: every step in a dispute workflow generates a typed `Event`, the chain is SHA-256 hash-linked and optionally Ed25519-signed, and the same chain renders as plain English, CSV, or JSON depending on who is looking.
+
+```ts
+import {
+  InMemoryEventLogStore,
+  renderEventLogText,
+  verifyChain,
+} from '@merchantguard/agentguard-cb/event-log';
+
+const store = new InMemoryEventLogStore();
+await store.append({
+  payload: { type: 'webhook_received', data: { webhookEvent: 'charge.dispute.created' } },
+  actor: 'system:agentguard-cb',
+  disputeId: 'dp_001',
+});
+await store.append({
+  payload: {
+    type: 'ce3_eligibility_evaluated',
+    data: {
+      qualified: true,
+      reasons: ['2 priors matched on IP and shipping_address'],
+      selectedPriorChargeIds: ['ch_a', 'ch_b'],
+      windowDaysMin: 120,
+      windowDaysMax: 365,
+    },
+  },
+  actor: 'system:agentguard-cb',
+  disputeId: 'dp_001',
+});
+
+const events = await store.list('dp_001');
+console.log(renderEventLogText(events));
+// [2026-05-02T18:00:00Z] system:agentguard-cb  Stripe webhook received: charge.dispute.created
+// [2026-05-02T18:00:01Z] system:agentguard-cb  Visa CE 3.0 eligibility evaluated: QUALIFIED
+//                              Priors selected: ch_a + ch_b (window 120-365 days)
+
+const verification = await verifyChain('dp_001', events);
+// { eventsChecked: 2, hashChainValid: true, signaturesChecked: 0, signaturesValid: 0, errors: [] }
+```
+
+Same data, two audiences. The boring version earns trust before the cryptographic one.
 
 ---
 
@@ -54,7 +101,10 @@ dispute-defender ships a stdio Model Context Protocol server so AI agents (Claud
 - `build_ce3_evidence` — assemble the Stripe-shape `enhanced_evidence` payload (returns the typed object only; you submit it yourself)
 - `canonical_json_hash` — canonical JSON serialization + SHA-256 hex digest (audit chain primitive)
 - `verify_manifest_signature` — verify an Ed25519 signature over a previously-generated `ManifestPayload`
-- `describe_dispute_defender` — high-level capabilities, safety posture, and patent / license status
+- `append_event` (v1.1) — append a typed event to the buyer-readable event log
+- `render_event_log` (v1.1) — render the chain in `text` (plain English), `csv`, or `json`
+- `verify_chain` (v1.1) — walk the chain and report tamper-evidence
+- `describe_agentguard_cb` — high-level capabilities, safety posture, and patent / license status
 
 **Claude Desktop install:** add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 

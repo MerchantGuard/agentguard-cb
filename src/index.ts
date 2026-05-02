@@ -73,3 +73,24 @@ export {
   type EvidenceAdapter,
   type AdapterInput,
 } from '../lib/evidence/adapter';
+
+// ─── Buyer-readable event log (v1.1) ──────────────────────────────────────
+export {
+  EVENT_TYPES,
+  InMemoryEventLogStore,
+  computeEventHash,
+  signHash,
+  verifyEvent,
+  verifyChain,
+  renderEvent,
+  renderEventLogText,
+  renderEventLogCsv,
+  type Event,
+  type EventType,
+  type EventPayload,
+  type RenderedEvent,
+  type ChainVerificationResult,
+  type EventLogStore,
+  type AppendInput,
+  type ListOpts,
+} from '../lib/event-log';

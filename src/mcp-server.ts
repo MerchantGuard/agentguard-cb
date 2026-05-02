@@ -1,16 +1,19 @@
 /**
- * dispute-defender MCP Server (stdio)
+ * AgentGuard CB MCP Server (stdio)
  *
- * Exposes dispute-defender's deterministic, anti-fabrication primitives
+ * Exposes AgentGuard CB's deterministic, anti-fabrication primitives
  * as Model Context Protocol tools so AI agents (Claude Desktop, Cursor,
  * Cline, Continue, etc.) can use them in coding and ops workflows.
  *
  * Tools exposed:
- *   - evaluate_ce3_eligibility   — score a CustomerEvidenceBundle for Visa CE 3.0
- *   - build_ce3_evidence         — assemble the Stripe-shape CE3 payload
- *   - canonical_json_hash        — canonical JSON + SHA-256 (audit primitive)
- *   - verify_manifest_signature  — verify a previously-signed PDF manifest
- *   - describe_dispute_defender  — return high-level capabilities + safety posture
+ *   - evaluate_ce3_eligibility   - score a CustomerEvidenceBundle for Visa CE 3.0
+ *   - build_ce3_evidence         - assemble the Stripe-shape CE3 payload
+ *   - canonical_json_hash        - canonical JSON + SHA-256 (audit primitive)
+ *   - verify_manifest_signature  - verify a previously-signed PDF manifest
+ *   - append_event               - append a typed event to the buyer-readable log
+ *   - render_event_log           - render the chain as plain English / text / csv / json
+ *   - verify_chain               - walk and verify the hash chain for a dispute
+ *   - describe_agentguard_cb     - return capabilities + safety posture
  *
  * Scope discipline:
  *   - No tool calls Stripe API, no tool writes to a database, no tool
@@ -48,11 +51,21 @@ import {
 import { customerEvidenceBundleSchema } from '../lib/evidence/schemas';
 import { canonicalJson } from '../lib/audit/log';
 import { verifyManifestSignature, sha256Hex } from '../lib/pdf/generate';
+import {
+  InMemoryEventLogStore,
+  renderEvent,
+  renderEventLogText,
+  renderEventLogCsv,
+  verifyChain,
+  EVENT_TYPES,
+  type EventPayload,
+  type EventType,
+} from '../lib/event-log';
 
 // ─── Server identity ──────────────────────────────────────────────────────
 const SERVER_INFO = {
   name: '@merchantguard/agentguard-cb',
-  version: '1.0.0',
+  version: '1.1.0',
 };
 
 // ─── Logging (MUST go to stderr; stdio MCP uses stdout for JSON-RPC) ──────
@@ -93,6 +106,67 @@ const canonicalJsonInputSchema = z.object({
       'Any JSON-serializable value. Returned canonical form has stable key ' +
         'ordering and stable number formatting so the SHA-256 hash is ' +
         'reproducible across machines and SDKs.',
+    ),
+});
+
+const appendEventInputSchema = z.object({
+  disputeId: z
+    .string()
+    .min(1)
+    .describe('The dispute this event belongs to. Free-form merchant identifier.'),
+  type: z
+    .enum(EVENT_TYPES)
+    .describe(`One of: ${EVENT_TYPES.join(', ')}.`),
+  data: z
+    .unknown()
+    .describe(
+      'Typed payload for the chosen event type. Shape is enforced at runtime: ' +
+        'see lib/event-log/types.ts for the per-type zod schemas.',
+    ),
+  actor: z
+    .string()
+    .min(1)
+    .describe(
+      'Free-form actor string, e.g. "system:agentguard-cb", ' +
+        '"agent:cursor-claude-3.5", "user:jp@merchantguard.ai".',
+    ),
+  signingSeedHex: z
+    .string()
+    .optional()
+    .describe(
+      'Optional 64-char hex Ed25519 seed. If provided, the appended event is ' +
+        'signed and the signer key id is derived deterministically from it.',
+    ),
+  timestamp: z
+    .string()
+    .optional()
+    .describe('Optional ISO 8601 UTC timestamp; defaults to now.'),
+});
+
+const renderEventLogInputSchema = z.object({
+  disputeId: z
+    .string()
+    .min(1)
+    .describe('The dispute whose event log to render.'),
+  format: z
+    .enum(['json', 'text', 'csv'])
+    .describe(
+      'json = array of RenderedEvent objects; text = multi-line plain English ' +
+        '(boring version, finance/legal); csv = spreadsheet export.',
+    ),
+});
+
+const verifyChainInputSchema = z.object({
+  disputeId: z
+    .string()
+    .min(1)
+    .describe('The dispute whose chain to verify.'),
+  publicKeyHex: z
+    .string()
+    .optional()
+    .describe(
+      'Optional Ed25519 public key (hex) to verify signatures against. ' +
+        'If omitted, only hash-chain integrity is checked, not signatures.',
     ),
 });
 
@@ -166,14 +240,50 @@ const tools = [
     inputSchema: zodToJsonSchema(verifyManifestInputSchema),
   },
   {
-    name: 'describe_dispute_defender',
+    name: 'append_event',
     description:
-      'Return a high-level description of dispute-defender capabilities, the ' +
+      'Append a typed event to the buyer-readable event log for a dispute. ' +
+      'The event is hash-chained to the previous event in the same disputeId; ' +
+      "if a signingSeedHex is provided, it is also Ed25519-signed. Returns the " +
+      'full Event including hash and (optional) signature. The log is in-memory ' +
+      'in the MCP process: production users plug in a persistent EventLogStore.',
+    inputSchema: zodToJsonSchema(appendEventInputSchema),
+  },
+  {
+    name: 'render_event_log',
+    description:
+      "Render a dispute's hash-chained event log in a human-readable form. " +
+      'format=text is the boring version that finance/legal read like a bank ' +
+      'statement; format=csv is the spreadsheet export; format=json returns ' +
+      'an array of RenderedEvent objects with drill-down handles to the raw ' +
+      'signed payloads.',
+    inputSchema: zodToJsonSchema(renderEventLogInputSchema),
+  },
+  {
+    name: 'verify_chain',
+    description:
+      "Walk a dispute's event chain and report tamper-evidence. Returns " +
+      '{eventsChecked, hashChainValid, signaturesChecked, signaturesValid, ' +
+      'errors}. If publicKeyHex is provided, signatures are verified too; ' +
+      'otherwise only hash-chain integrity is checked. Pure-functional and ' +
+      'never throws.',
+    inputSchema: zodToJsonSchema(verifyChainInputSchema),
+  },
+  {
+    name: 'describe_agentguard_cb',
+    description:
+      'Return a high-level description of AgentGuard CB capabilities, the ' +
       'anti-fabrication safety posture, and the patent / license status. Useful ' +
       'as a first call to understand what tools to use for a dispute workflow.',
     inputSchema: { type: 'object', properties: {}, required: [] },
   },
 ];
+
+// ─── Process-level event-log store ────────────────────────────────────────
+// MCP servers are long-lived stdio processes. Keep a single store across
+// tool calls so an agent can append, render, and verify within one session.
+// Production users swap in a persistent EventLogStore via the lib API.
+const eventStore = new InMemoryEventLogStore();
 
 // ─── Tool handlers ────────────────────────────────────────────────────────
 
@@ -278,6 +388,71 @@ async function handleVerifyManifest(args: unknown): Promise<CallToolResult> {
   }
 }
 
+async function handleAppendEvent(args: unknown): Promise<CallToolResult> {
+  const parsed = appendEventInputSchema.safeParse(args);
+  if (!parsed.success) return fail(`Invalid input: ${parsed.error.message}`);
+  const { disputeId, type, data, actor, signingSeedHex, timestamp } = parsed.data;
+  try {
+    const payload = { type, data } as EventPayload;
+    const event = await eventStore.append({
+      payload,
+      actor,
+      disputeId,
+      timestamp,
+      signingSeedHex,
+    });
+    return ok({
+      event,
+      rendered: renderEvent(event),
+    });
+  } catch (err) {
+    return fail(`append_event threw: ${(err as Error).message}`);
+  }
+}
+
+async function handleRenderEventLog(args: unknown): Promise<CallToolResult> {
+  const parsed = renderEventLogInputSchema.safeParse(args);
+  if (!parsed.success) return fail(`Invalid input: ${parsed.error.message}`);
+  const { disputeId, format } = parsed.data;
+  try {
+    const events = await eventStore.list(disputeId);
+    if (format === 'json') {
+      return ok({
+        disputeId,
+        eventCount: events.length,
+        events: events.map(renderEvent),
+      });
+    }
+    if (format === 'text') {
+      return ok({
+        disputeId,
+        eventCount: events.length,
+        text: renderEventLogText(events),
+      });
+    }
+    return ok({
+      disputeId,
+      eventCount: events.length,
+      csv: renderEventLogCsv(events),
+    });
+  } catch (err) {
+    return fail(`render_event_log threw: ${(err as Error).message}`);
+  }
+}
+
+async function handleVerifyChain(args: unknown): Promise<CallToolResult> {
+  const parsed = verifyChainInputSchema.safeParse(args);
+  if (!parsed.success) return fail(`Invalid input: ${parsed.error.message}`);
+  const { disputeId, publicKeyHex } = parsed.data;
+  try {
+    const events = await eventStore.list(disputeId);
+    const result = await verifyChain(disputeId, events, publicKeyHex);
+    return ok(result);
+  } catch (err) {
+    return fail(`verify_chain threw: ${(err as Error).message}`);
+  }
+}
+
 async function handleDescribe(): Promise<CallToolResult> {
   return ok({
     name: '@merchantguard/agentguard-cb',
@@ -346,6 +521,11 @@ function zodFieldToSchema(field: z.ZodTypeAny): Record<string, unknown> {
   if (field instanceof z.ZodString) base = { type: 'string' };
   else if (field instanceof z.ZodNumber) base = { type: 'number' };
   else if (field instanceof z.ZodBoolean) base = { type: 'boolean' };
+  else if (field instanceof z.ZodEnum) {
+    base = { type: 'string', enum: (field as z.ZodEnum<[string, ...string[]]>).options };
+  } else if (field instanceof z.ZodLiteral) {
+    base = { const: (field as z.ZodLiteral<unknown>).value };
+  }
   else if (field instanceof z.ZodArray) {
     base = { type: 'array', items: zodFieldToSchema(field.element) };
   } else if (field instanceof z.ZodObject) {
@@ -389,6 +569,13 @@ async function main() {
           return await handleCanonicalJsonHash(args);
         case 'verify_manifest_signature':
           return await handleVerifyManifest(args);
+        case 'append_event':
+          return await handleAppendEvent(args);
+        case 'render_event_log':
+          return await handleRenderEventLog(args);
+        case 'verify_chain':
+          return await handleVerifyChain(args);
+        case 'describe_agentguard_cb':
         case 'describe_dispute_defender':
           return await handleDescribe();
         default:
