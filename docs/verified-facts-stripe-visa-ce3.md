@@ -1,6 +1,6 @@
 # Verified-Facts Appendix: Stripe Visa CE 3.0 (April 2026)
 
-A ground-truth reference document for `dispute-defender` (TypeScript/Next.js). All claims are sourced to Stripe or Visa primary docs unless otherwise noted. Where docs are ambiguous or where Stripe's behavior diverges from Visa's published rules, this is flagged inline.
+A ground-truth reference document for `AgentGuard CB` (TypeScript/Next.js). All claims are sourced to Stripe or Visa primary docs unless otherwise noted. Where docs are ambiguous or where Stripe's behavior diverges from Visa's published rules, this is flagged inline.
 
 ## TL;DR
 
@@ -64,7 +64,7 @@ Top-level path: `evidence.enhanced_evidence.visa_compelling_evidence_3` (object,
 **Visa (from the March 2023 Merchant Readiness PDF, `usa.visa.com/.../compelling-evidence-3.0-merchant-readiness-mar2023.pdf`, surfaced via search excerpts and Visa's own FAQ PDF "Evolution of Compelling Evidence: Client FAQs", October 2022):**
 > "The transactions must be at least **120 days old but no older than 365 days** (calculated from the dispute…)" / FAQ Q13: "What is the maximum age of transactions that can be used? **365 days**. So, transactions that fall **120 - 365 days** after the dispute date can be utilized to meet the [criteria]."
 
-**Discrepancy flag, confirmed and material:** Stripe's docs say `120-364`, Visa says `120-365`. This is a real one-day off-by-one in Stripe's documentation. Practical guidance for `dispute-defender`:
+**Discrepancy flag, confirmed and material:** Stripe's docs say `120-364`, Visa says `120-365`. This is a real one-day off-by-one in Stripe's documentation. Practical guidance for `AgentGuard CB`:
 - The Stripe API will return `requires_action` / `not_qualified` based on Stripe's own validator. Using Stripe's tighter bound (less than or equal to 364 days) is the safe operating window.
 - For prior charges that are exactly 365 days old at the moment of submission, do not assume Stripe will accept them, even though Visa would.
 - The 120-day floor does not apply to original credit transactions / Account Funding Transactions (AFT) per Visa's PDF, but Stripe's docs do not document this carve-out, so don't rely on it via Stripe's API.
@@ -162,7 +162,7 @@ const evidence = {
 - **CE 3.0 was added in:** `2024-10-28.acacia` (per `https://docs.stripe.com/changelog/acacia/2024-10-28/visa-compelling-evidence-3-0`). The corresponding Node SDK version is **17.3.0**.
 - **Release-train sequence of major (breaking) versions:** `2024-09-30.acacia` (first acacia) to `2025-03-31.basil` to `2025-09-30.clover` to `2026-03-25.dahlia` (current major). Monthly minor releases sit under the current major name (e.g. `2026-04-22.dahlia`, `2025-10-29.clover`, `2026-02-25.clover`, `2026-01-28.clover`).
 - **`apiVersion: "2024-11-20.acacia"` in the constructor:** Note that there is no published `2024-11-20.acacia` minor: the relevant acacia release for CE 3.0 is `2024-10-28.acacia`. If you're seeing `2024-11-20.acacia` in older example code, it's likely a typo or an earlier internal pin; verify against `docs.stripe.com/changelog`. **Any acacia release greater than or equal to 2024-10-28.acacia supports CE 3.0**, and basil/clover/dahlia all carry it forward (with a typing change in basil/clover where `Dispute.enhanced_eligibility_types` was widened from a single-value literal to an enum that adds `visa_compliance`).
-- **Practical recommendation for `dispute-defender`:** pin to the same API version as your stripe-node package's pinned version (`2026-03-25.dahlia` for v21/v22). Don't downgrade to acacia just for CE 3.0: newer versions are supersets.
+- **Practical recommendation for `AgentGuard CB`:** pin to the same API version as your stripe-node package's pinned version (`2026-03-25.dahlia` for v21/v22). Don't downgrade to acacia just for CE 3.0: newer versions are supersets.
 
 ---
 
@@ -178,7 +178,7 @@ This is still accurate as of April 2026. There is no Stripe-supported "edge-frie
 - Cloudflare's official Stripe Workers template uses this pattern (per the Cloudflare blog post on native Stripe SDK support).
 - In Next.js App Router (`app/api/.../route.ts`), `await req.text()` returns the raw body for POST requests; this works on both `runtime = "nodejs"` and `runtime = "edge"`. With the older Pages Router, you must export `config = { api: { bodyParser: false } }` and read with `micro`'s `buffer()` or equivalent.
 
-**Recommendation for `dispute-defender`:** keep the webhook route on `runtime = "nodejs"` (the default) and use `stripe.webhooks.constructEvent(rawBody, sig, secret)`. Switch to `constructEventAsync` + Subtle Crypto only if you have a hard reason to run on Edge. The risk on Edge is not Stripe's verification logic: it's the surrounding framework silently parsing the body before you read it.
+**Recommendation for `AgentGuard CB`:** keep the webhook route on `runtime = "nodejs"` (the default) and use `stripe.webhooks.constructEvent(rawBody, sig, secret)`. Switch to `constructEventAsync` + Subtle Crypto only if you have a hard reason to run on Edge. The risk on Edge is not Stripe's verification logic: it's the surrounding framework silently parsing the body before you read it.
 
 ---
 
@@ -241,7 +241,7 @@ Source: Stripe's CE 3.0 doc shows it explicitly in the example response:
 - `reason: "fraudulent"`: typically maps to Visa 10.4 (Other Fraud, Card-Absent Environment) for CNP transactions, and is the category Visa CE 3.0 covers.
 - `reason: "unrecognized"`: Stripe's "Unrecognized" category is its own bucket. Per Stripe's reason code categories doc, `unrecognized` is distinct from `fraudulent`. CE 3.0 applies **only** to disputes where the network reason code is `10.4`. An "unrecognized" Stripe-categorized dispute may or may not surface as `network_reason_code: "10.4"` depending on how the issuer filed it; the authoritative gate is the network reason code, not Stripe's category.
 
-**Practical rule for `dispute-defender`:**
+**Practical rule for `AgentGuard CB`:**
 ```ts
 const isCe3Eligible =
   dispute.payment_method_details?.card?.brand === "visa" &&
@@ -262,7 +262,7 @@ The presence of `"visa_compelling_evidence_3"` in `enhanced_eligibility_types` i
 - Mastercard's First-Party Trust program itself launched in the U.S. in October 2024 and expanded globally in 2025 (per Mastercard's June 2025 press release at `mastercard.com/global/en/news-and-trends/press/2025/june/`). It uses Identity Check Insights and Ethoca Consumer Clarity Merchant Transactions API as its sharing pathways: not a per-dispute evidence object via acquirers. This is structurally different from CE 3.0.
 - Stripe has discussed Mastercard First-Party Trust in marketing/sessions content (`stripe.com/sessions/2025/mastercard-strategies-for-reducing-chargebacks`) and ships Ethoca Alerts integrations, but as of April 2026 there is no documented `enhanced_evidence.mastercard_first_party_trust` API surface. There is no public Stripe changelog entry announcing one.
 
-**Implication for `dispute-defender`:** treat Mastercard friendly-fraud disputes via standard `evidence.*` fields (3DS results, AVS, CVV match, prior-transaction documentation under `customer_communication`/`receipt`/`shipping_documentation`). Do not write code paths assuming an `enhanced_evidence.mastercard_first_party_trust` namespace; that's roadmap-speculative.
+**Implication for `AgentGuard CB`:** treat Mastercard friendly-fraud disputes via standard `evidence.*` fields (3DS results, AVS, CVV match, prior-transaction documentation under `customer_communication`/`receipt`/`shipping_documentation`). Do not write code paths assuming an `enhanced_evidence.mastercard_first_party_trust` namespace; that's roadmap-speculative.
 
 ---
 
@@ -370,7 +370,7 @@ Combined limit on text-based evidence fields: **150,000 characters** (per `docs.
 4. **`shipping_address` "all fields are required":** Stripe's API doc says "All fields are required for Visa Compelling Evidence 3.0 evidence submission" while marking each individual sub-field as `optional` in the schema. The runtime validator enforces full-address requirement; TypeScript types do not. Don't rely on TS to catch missing sub-fields.
 5. **Type-path nomenclature for stripe-node:** `Stripe.DisputeUpdateParams.Evidence.EnhancedEvidence.VisaCompellingEvidence3` follows the SDK's standard generator naming, but the canonical confirmation is in your installed `node_modules/stripe/types/disputes.d.ts` (or inline TS files in v22+). Run `tsc --noEmit` to verify. If the identifier resolves, you're correctly typed; if not, use the `as unknown as` workaround pending an SDK upgrade.
 6. **Edge runtime for webhooks:** technically possible with `constructEventAsync` + `Stripe.createSubtleCryptoProvider()`, but most production teams keep webhook handlers on the Node runtime to avoid raw-body subtleties. Explicitly set `export const runtime = "nodejs"` on the webhook route in Next.js App Router for predictability.
-7. **No Mastercard parallel in the Stripe API:** any code in `dispute-defender` that abstracts an "enhanced evidence" union type should currently encode only `visa_compelling_evidence_3` and `visa_compliance` as members. Watch `docs.stripe.com/changelog` and the stripe-node CHANGELOG for additions.
+7. **No Mastercard parallel in the Stripe API:** any code in `AgentGuard CB` that abstracts an "enhanced evidence" union type should currently encode only `visa_compelling_evidence_3` and `visa_compliance` as members. Watch `docs.stripe.com/changelog` and the stripe-node CHANGELOG for additions.
 8. **CE 3.0 status is independent of dispute status:** Per Stripe: "The Visa CE 3.0 status doesn't impact the dispute status." A dispute can be won via CE 3.0 path or via standard evidence. **Always populate the standard `evidence.*` fields too**, because if `not_qualified` is returned post-submission, "Evidence is still submitted, but not using Visa CE 3.0": falling through to the standard issuer-discretion flow.
 9. **API-version drift:** if you pin `apiVersion: "2024-10-28.acacia"` in your `new Stripe(...)` config and your installed stripe-node is v22 (pinned to dahlia), runtime requests will use the older API behavior but the TypeScript types describe dahlia. This is a known type-vs-runtime mismatch. Best practice: either match `apiVersion` to your stripe-node version's pinned API, or omit `apiVersion` and let stripe-node use its pinned default.
 10. **`stripe trigger` has no CE 3.0 event:** integration tests must orchestrate the flow manually (create payment with the test card to wait for `charge.dispute.created` to PATCH dispute). There is no single CLI command to materialize a CE 3.0-ready dispute object.

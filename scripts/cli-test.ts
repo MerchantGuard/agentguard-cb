@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 /**
- * `npx dispute-defender test`
+ * `npx agentguard-cb test`
  *
  * Generates a sample evidence bundle, validates schemas, builds a CE 3.0 payload,
  * generates a sample PDF, verifies the manifest signature.
@@ -104,7 +104,7 @@ async function main() {
   console.log(`5. Manifest signature: ${verified ? 'VERIFIED ✓' : 'sign-only (verification needs ed package shape)'}`);
 
   mkdirSync('tmp', { recursive: true });
-  const outPath = resolve('tmp/dispute-defender-sample.pdf');
+  const outPath = resolve('tmp/agentguard-cb-sample.pdf');
   writeFileSync(outPath, pdfResult.pdfBytes);
   console.log(`\nWrote ${outPath}`);
 }

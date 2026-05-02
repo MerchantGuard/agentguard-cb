@@ -31,7 +31,7 @@ Behavior in test mode:
 2. **Wait for `charge.dispute.created` webhook** (or use `stripe trigger charge.dispute.created` — but note the trigger does NOT use the CE 3.0 fixture, so qualification will fail).
 
 3. **Stage evidence with `submit: false`:**
-   The dispute-defender webhook will enqueue a `collect_evidence` job. After the job processor runs through `collect → generate_pdf → stage_evidence`, the staged evidence is visible on the dispute via Stripe Dashboard or API.
+   The AgentGuard CB webhook will enqueue a `collect_evidence` job. After the job processor runs through `collect → generate_pdf → stage_evidence`, the staged evidence is visible on the dispute via Stripe Dashboard or API.
 
 4. **Inspect eligibility status:**
    ```bash
@@ -40,7 +40,7 @@ Behavior in test mode:
    Look for `status: "qualified" | "requires_action" | "not_qualified"` and `required_actions: [...]`.
 
 5. **Force a final outcome (test mode only):**
-   Stripe accepts `evidence.uncategorized_text: 'winning_evidence' | 'losing_evidence'` to force the dispute outcome in test mode. **dispute-defender does NOT use uncategorized_text in production code paths.** This trick is for manual testing only via raw API.
+   Stripe accepts `evidence.uncategorized_text: 'winning_evidence' | 'losing_evidence'` to force the dispute outcome in test mode. **AgentGuard CB does NOT use uncategorized_text in production code paths.** This trick is for manual testing only via raw API.
 
 ## What is NOT validated in test mode
 

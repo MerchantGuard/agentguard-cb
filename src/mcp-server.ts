@@ -25,7 +25,7 @@
  * Install (Claude Desktop config):
  *   {
  *     "mcpServers": {
- *       "dispute-defender": {
+ *       "agentguard-cb": {
  *         "command": "npx",
  *         "args": ["-y", "@merchantguard/agentguard-cb", "mcp"]
  *       }
@@ -65,7 +65,7 @@ import {
 // ─── Server identity ──────────────────────────────────────────────────────
 const SERVER_INFO = {
   name: '@merchantguard/agentguard-cb',
-  version: '1.1.0',
+  version: '1.1.1',
 };
 
 // ─── Logging (MUST go to stderr; stdio MCP uses stdout for JSON-RPC) ──────
@@ -228,13 +228,13 @@ const tools = [
       'Return the canonical JSON serialization and SHA-256 hex digest of any ' +
       'JSON-serializable value. Use this primitive to chain evidence ' +
       'commitments into your own audit log in a way compatible with ' +
-      'dispute-defender manifest verification.',
+      'AgentGuard CB manifest verification.',
     inputSchema: zodToJsonSchema(canonicalJsonInputSchema),
   },
   {
     name: 'verify_manifest_signature',
     description:
-      'Verify an Ed25519 signature over a dispute-defender ManifestPayload. ' +
+      'Verify an Ed25519 signature over a AgentGuard CB ManifestPayload. ' +
       'Returns whether the signature is valid for the manifest and public key. ' +
       'Use this to audit-check a previously generated dispute PDF.',
     inputSchema: zodToJsonSchema(verifyManifestInputSchema),
@@ -471,11 +471,11 @@ async function handleDescribe(): Promise<CallToolResult> {
         description:
           'Ed25519 hash-chained audit primitives. Returns canonical JSON + ' +
           'SHA-256 so callers can build a reproducible commitment chain that ' +
-          'is compatible with dispute-defender manifest verification.',
+          'is compatible with AgentGuard CB manifest verification.',
       },
       pdf_manifest: {
         description:
-          'Verify Ed25519 signatures over dispute-defender ManifestPayload ' +
+          'Verify Ed25519 signatures over AgentGuard CB ManifestPayload ' +
           'objects produced by generateDisputePdf. Useful for auditing a ' +
           'previously-generated evidence bundle.',
       },

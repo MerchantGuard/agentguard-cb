@@ -21,7 +21,7 @@ import type { CustomerEvidenceBundle } from '../evidence/schemas';
 import { auditLog } from '../audit/log';
 
 export interface SubmitInput {
-  disputeId: string;                    // dispute-defender internal UUID
+  disputeId: string;                    // AgentGuard CB internal UUID
   stripeDisputeId: string;
   bundle: CustomerEvidenceBundle;
   pdfBuffer: Buffer;
@@ -56,7 +56,7 @@ export async function submitDisputeEvidence(input: SubmitInput): Promise<SubmitR
     purpose: 'dispute_evidence',
     file: {
       data: input.pdfBuffer,
-      name: `dispute-defender-${input.stripeDisputeId}.pdf`,
+      name: `agentguard-cb-${input.stripeDisputeId}.pdf`,
       type: 'application/pdf',
     },
   });

@@ -1,6 +1,6 @@
 # Legal Notes
 
-`dispute-defender` is open-source software published by Dunecrest Ventures Inc. (a Wyoming C-Corporation) under the MIT License. This file contains non-binding legal context for users; it is not a license, not legal advice, and does not modify the MIT License in `LICENSE`. Companion files: `DISCLAIMER.md`, `PATENTS.md`, `EXPORT.md`, `DCO.md`, and `SECURITY.md`.
+`AgentGuard CB` is open-source software published by Dunecrest Ventures Inc. (a Wyoming C-Corporation) under the MIT License. This file contains non-binding legal context for users; it is not a license, not legal advice, and does not modify the MIT License in `LICENSE`. Companion files: `DISCLAIMER.md`, `PATENTS.md`, `EXPORT.md`, `DCO.md`, and `SECURITY.md`.
 
 ## Not legal advice
 

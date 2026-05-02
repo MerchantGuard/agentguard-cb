@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'dispute-defender',
+  title: 'AgentGuard CB',
   description: 'Deterministic Stripe dispute evidence compiler by MerchantGuard',
 };
 

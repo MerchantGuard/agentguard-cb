@@ -3,7 +3,7 @@ import Link from 'next/link';
 export default function Home() {
   return (
     <main style={{ maxWidth: 720, margin: '64px auto', padding: '0 24px' }}>
-      <h1 style={{ fontSize: 32, marginBottom: 8 }}>dispute-defender</h1>
+      <h1 style={{ fontSize: 32, marginBottom: 8 }}>AgentGuard CB</h1>
       <p style={{ color: '#94A3B8', marginBottom: 32, lineHeight: 1.6 }}>
         Deterministic Stripe dispute evidence compiler. Static templates only, no
         model-generated text. Audit-logged from adapter response to PDF to

@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Report a bug in dispute-defender
+about: Report a bug in AgentGuard CB
 labels: bug
 ---
 
@@ -38,7 +38,7 @@ What actually happened. **Redact any logs, payloads, or screenshots before pasti
 
 ## Environment
 
-- `dispute-defender` version:
+- `AgentGuard CB` version:
 - Stripe SDK version (run `npm run stripe:version`):
 - Node version:
 - Adapter being used:

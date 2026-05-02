@@ -1,5 +1,5 @@
 /**
- * Drizzle schema for dispute-defender.
+ * Drizzle schema for AgentGuard CB.
  *
  * Tables:
  * - disputes              : dispute state mirror (synced from Stripe webhooks)

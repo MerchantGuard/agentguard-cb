@@ -18,7 +18,7 @@
  *     tamper-evidence end-to-end.
  *   - Actor strings are free-form to avoid coupling to a particular
  *     identity scheme; downstream consumers parse them as they wish
- *     (e.g. `system:dispute-defender`, `agent:cursor-claude-3.5`,
+ *     (e.g. `system:agentguard-cb`, `agent:cursor-claude-3.5`,
  *     `user:jp@merchantguard.ai`).
  */
 

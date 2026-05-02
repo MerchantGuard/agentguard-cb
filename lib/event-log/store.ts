@@ -2,7 +2,7 @@
  * EventLogStore — pluggable persistence for the event chain.
  *
  * Self-host users can plug in a Postgres adapter (matching the existing
- * dispute-defender Drizzle setup) or any other backend by implementing
+ * AgentGuard CB Drizzle setup) or any other backend by implementing
  * the EventLogStore interface. The in-memory adapter is the reference
  * implementation, also used in tests, and is sufficient for stateless
  * one-off MCP tool calls (which is the MCP server's only use case).

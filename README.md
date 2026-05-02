@@ -93,7 +93,7 @@ Same data, two audiences. The boring version earns trust before the cryptographi
 
 ## Use from an AI agent (MCP server)
 
-dispute-defender ships a stdio Model Context Protocol server so AI agents (Claude Desktop, Cursor, Cline, Continue, etc.) can call its primitives during coding and ops workflows. The MCP server is **read-only and pure-functional**: it never calls the Stripe API, never writes to a database, and never submits a dispute. Submission and persistence remain the merchant's responsibility, which matches the [LEGAL.md](./LEGAL.md) posture.
+AgentGuard CB ships a stdio Model Context Protocol server so AI agents (Claude Desktop, Cursor, Cline, Continue, etc.) can call its primitives during coding and ops workflows. The MCP server is **read-only and pure-functional**: it never calls the Stripe API, never writes to a database, and never submits a dispute. Submission and persistence remain the merchant's responsibility, which matches the [LEGAL.md](./LEGAL.md) posture.
 
 **Tools exposed:**
 
@@ -111,7 +111,7 @@ dispute-defender ships a stdio Model Context Protocol server so AI agents (Claud
 ```json
 {
   "mcpServers": {
-    "dispute-defender": {
+    "agentguard-cb": {
       "command": "npx",
       "args": ["-y", "@merchantguard/agentguard-cb", "mcp"]
     }
@@ -140,7 +140,7 @@ It will start a stdio server. Send `{"jsonrpc":"2.0","id":1,"method":"tools/list
 - **Is NOT endorsed, certified, audited, or "approved" by Visa Inc., Mastercard Inc., Stripe Inc., or any acquirer.**
 - **Is NOT a substitute for the merchant's own legal, compliance, and acquirer obligations.**
 
-If you want LLM-assisted dispute narratives, this is the wrong tool. dispute-defender is the deliberate counter-trend: structured, deterministic, auditable.
+If you want LLM-assisted dispute narratives, this is the wrong tool. AgentGuard CB is the deliberate counter-trend: structured, deterministic, auditable.
 
 ---
 

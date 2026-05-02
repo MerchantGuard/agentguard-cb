@@ -1,7 +1,7 @@
 /**
  * @merchantguard/agentguard-cb
  *
- * Public library API for dispute-defender. This file is the single
+ * Public library API for AgentGuard CB. This file is the single
  * entry point published to npm; consumers should `import { ... } from
  * "@merchantguard/agentguard-cb"`. Subpath exports are available via
  * `@merchantguard/agentguard-cb/evidence`, `/audit`, `/pdf`, and

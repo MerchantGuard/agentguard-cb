@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 /**
- * `npx dispute-defender init`
+ * `npx agentguard-cb init`
  *
  * Interactive setup. Generates .env.local from prompts.
  * Does NOT call live Stripe.
@@ -17,7 +17,7 @@ const ask = async (q: string, fallback = ''): Promise<string> => {
 };
 
 async function main() {
-  console.log('\ndispute-defender setup\n----------------------\n');
+  console.log('\nAgentGuard CB setup\n----------------------\n');
 
   const targetPath = resolve(process.cwd(), '.env.local');
   if (existsSync(targetPath)) {

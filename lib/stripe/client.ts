@@ -28,7 +28,7 @@ export function getStripe(): Stripe {
   stripe = new Stripe(key, {
     maxNetworkRetries: 3,
     appInfo: {
-      name: 'dispute-defender',
+      name: 'agentguard-cb',
       version: process.env.npm_package_version ?? '0.2.0',
       url: 'https://merchantguard.ai',
     },

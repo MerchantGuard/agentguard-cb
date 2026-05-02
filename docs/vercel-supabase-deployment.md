@@ -1,6 +1,6 @@
 # Deploy to Vercel + Supabase
 
-Reference deployment for dispute-defender.
+Reference deployment for AgentGuard CB.
 
 ## 1. Provision Supabase
 

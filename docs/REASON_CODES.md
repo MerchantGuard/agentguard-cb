@@ -2,7 +2,7 @@
 
 Authoritative source for CE 3.0 details: [`verified-facts-stripe-visa-ce3.md`](./verified-facts-stripe-visa-ce3.md).
 
-| Visa code | Description | CE 3.0 eligible? | dispute-defender support | Notes |
+| Visa code | Description | CE 3.0 eligible? | AgentGuard CB support | Notes |
 |-----------|-------------|------------------|--------------------------|-------|
 | **10.4** | Other Fraud — Card-Absent Environment | ✅ YES (the main CE 3.0 code) | Full template, CE 3.0 enhanced evidence path | The only Visa reason code where Stripe surfaces the CE 3.0 enhanced evidence option. |
 | **13.1** | Services Not Provided / Merchandise Not Received | ❌ No | Standard evidence template | Use delivery proof + tracking + customer comm metadata. |
@@ -14,7 +14,7 @@ Authoritative source for CE 3.0 details: [`verified-facts-stripe-visa-ce3.md`](.
 
 ## Mastercard
 
-As of April 2026, Stripe does **NOT** publicly support a Mastercard First-Party Trust enhanced-evidence object in the Dispute API. dispute-defender treats all Mastercard friendly-fraud disputes (typically network reason code `4837`) via standard `evidence.*` fields. Watch <https://docs.stripe.com/changelog> for additions.
+As of April 2026, Stripe does **NOT** publicly support a Mastercard First-Party Trust enhanced-evidence object in the Dispute API. AgentGuard CB treats all Mastercard friendly-fraud disputes (typically network reason code `4837`) via standard `evidence.*` fields. Watch <https://docs.stripe.com/changelog> for additions.
 
 ## What "manual review" means
 
