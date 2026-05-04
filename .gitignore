@@ -10,3 +10,6 @@ dist/
 tmp/
 coverage/
 *.tsbuildinfo
+
+# deepsec scan workspace
+.deepsec/

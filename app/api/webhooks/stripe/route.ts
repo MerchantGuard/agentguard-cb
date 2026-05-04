@@ -48,8 +48,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     event = getStripe().webhooks.constructEvent(rawBody, sig, secret);
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'unknown';
-    return NextResponse.json({ error: `signature verification failed: ${msg}` }, { status: 400 });
+    // Log full error server-side; return only a generic verdict to the caller.
+    // Surfacing err.message could leak Stripe SDK internals or library stack
+    // detail to whoever is hitting the webhook URL (caught by deepsec scan
+    // 2026-05-04, error-message-leak matcher).
+    console.error('[stripe-webhook] signature verification failed:', err);
+    return NextResponse.json({ error: 'signature verification failed' }, { status: 400 });
   }
 
   // Idempotency: insert event ID with unique constraint.
