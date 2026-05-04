@@ -52,7 +52,7 @@ This Software incorporates standard cryptography (Ed25519 digital signatures via
 
 ## Trademarks
 
-MerchantGuard® and GuardScore® are registered trademarks, and AgentGuard™ is a trademark (USPTO Serial No. 99462472), of Dunecrest Ventures Inc. Third-party trademarks referenced in this Software are used nominatively under the Lanham Act and the doctrine articulated in *New Kids on the Block v. News America Publ'g, Inc.*, 971 F.2d 302 (9th Cir. 1992), and do not imply endorsement.
+MerchantGuard™ (USPTO Serial No. 99051215), GuardScore™ (USPTO Serial No. 99030125), and AgentGuard™ (USPTO Serial No. 99462472) are pending USPTO trademark applications of Dunecrest Ventures Inc. Third-party trademarks referenced in this Software are used nominatively under the Lanham Act and the doctrine articulated in *New Kids on the Block v. News America Publ'g, Inc.*, 971 F.2d 302 (9th Cir. 1992), and do not imply endorsement.
 
 ## Severability
 
