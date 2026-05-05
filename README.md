@@ -2,6 +2,40 @@
 
 > Language: **English** · [Español (LATAM)](README.es.md) · [Português (Brasil)](README.pt-BR.md)
 
+**Open-source CE 3.0 evidence SDK for Stripe disputes. MIT licensed. No LLM in the evidence pipeline.**
+
+```bash
+npm install @merchantguard/agentguard-cb
+```
+
+```ts
+import {
+  evaluateVisaCe3Eligibility,
+  buildStripeVisaCe3EnhancedEvidence,
+  customerEvidenceBundleSchema,
+} from '@merchantguard/agentguard-cb'
+
+const bundle = customerEvidenceBundleSchema.parse(yourBundle)
+const eligibility = evaluateVisaCe3Eligibility(bundle)
+
+if (eligibility.qualified) {
+  const payload = buildStripeVisaCe3EnhancedEvidence(bundle, eligibility.selectedPriors)
+  // pass payload to your own Stripe SDK call to dispute.update with submit:false
+}
+```
+
+**Why this exists**
+
+- Stripe disputes are a proof problem. The proof is scattered across signup logs, IPs, invoices, product usage, support emails, and terms-acceptance receipts.
+- Most teams skip the fight because assembling that evidence is miserable.
+- This SDK does the assembly, deterministically, on your own infrastructure. Default `submit:false`. Ed25519-signed, hash-chained audit log. Static templates only — no LLM in the evidence pipeline.
+
+[Full launch story](https://www.merchantguard.ai/blog/introducing-agentguard-cb) · [Live product page](https://www.merchantguard.ai/agentguard-cb) · [Docs](https://www.merchantguard.ai/docs/products/agentguard-cb) · [FAQ](https://www.merchantguard.ai/agentguard-cb#faq)
+
+---
+
+## What this library is
+
 A typed, deterministic helper library for assembling chargeback-evidence payloads in the schema expected by the current Stripe Disputes API and staging them with `submit:false` for merchant human review prior to submission. Open-sourced by [MerchantGuard](https://merchantguard.ai). Part of the AgentGuard family.
 
 Your AI agent ships features. Customers dispute charges. This library compiles structured evidence from your own production data, surfaces the eligibility statuses Stripe reports (`qualified`, `requires_action`, `not_qualified`), and writes a hash-chained audit trail. **It does not file disputes with Visa, is not a Visa Third Party Agent, is not registered under the Visa TPA Registration Program, and has no contractual or technical relationship with Visa Inc., Stripe, Inc., or any acquirer.** References to those trademarks are nominative use under the Lanham Act and the doctrine articulated in *New Kids on the Block v. News America Publ'g, Inc.*, 971 F.2d 302 (9th Cir. 1992), to identify the rules and APIs with which this library is designed to interoperate.
