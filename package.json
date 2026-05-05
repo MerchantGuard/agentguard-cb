@@ -1,8 +1,8 @@
 {
   "name": "@merchantguard/agentguard-cb",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "private": false,
-  "description": "AgentGuard CB — typed, deterministic library for assembling Visa Compelling Evidence 3.0 chargeback evidence in the shape required by the Stripe Disputes API. Static templates only, no LLM-generated narrative, Ed25519 hash-chained audit log. Ships with a stdio MCP server for AI-agent workflows. Part of the AgentGuard™ family from MerchantGuard™.",
+  "description": "Open-source CE 3.0 evidence SDK for Stripe disputes. MIT licensed. No LLM in the evidence pipeline.",
   "license": "MIT",
   "patents": "https://github.com/MerchantGuard/agentguard-cb/blob/main/PATENTS.md",
   "homepage": "https://github.com/MerchantGuard/agentguard-cb#readme",
