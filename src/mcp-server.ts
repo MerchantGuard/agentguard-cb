@@ -61,11 +61,16 @@ import {
   type EventPayload,
   type EventType,
 } from '../lib/event-log';
+import { validateBundleSanity } from '../lib/evidence/sanity';
+import {
+  InMemoryOutcomeRecorder,
+  type DisputeFinalOutcome,
+} from '../lib/outcomes';
 
 // ─── Server identity ──────────────────────────────────────────────────────
 const SERVER_INFO = {
   name: '@merchantguard/agentguard-cb',
-  version: '1.1.1',
+  version: '1.2.0',
 };
 
 // ─── Logging (MUST go to stderr; stdio MCP uses stdout for JSON-RPC) ──────
@@ -170,6 +175,64 @@ const verifyChainInputSchema = z.object({
     ),
 });
 
+const validateBundleSanityInputSchema = z.object({
+  bundle: z
+    .unknown()
+    .describe(
+      'A CustomerEvidenceBundle object. Same shape as evaluate_ce3_eligibility. ' +
+        'Returns a list of findings (block / warn / info severity) for ' +
+        'logically-impossible or suspicious states. Pure deterministic logic; ' +
+        'no LLM, no fabrication scoring. Findings sorted block first.',
+    ),
+});
+
+const recordDisputeOutcomeInputSchema = z.object({
+  disputeId: z.string().min(1).describe('The Stripe dispute ID (dp_*).'),
+  outcome: z
+    .enum(['won', 'lost', 'withdrawn', 'pending', 'unknown'])
+    .describe('Final outcome of the dispute.'),
+  evidencePacketHash: z
+    .string()
+    .optional()
+    .describe('Hash of the canonical evidence packet that was submitted.'),
+  eligibilityStatusAtSubmission: z
+    .enum(['qualified', 'requires_action', 'not_qualified'])
+    .optional()
+    .describe('Stripe-reported eligibility at time of submission.'),
+  merchantLocale: z
+    .string()
+    .optional()
+    .describe('Locale of the merchant who submitted (e.g. en, es-MX, pt-BR).'),
+  merchantNotes: z
+    .string()
+    .optional()
+    .describe('Free-form notes. MUST NOT include cardholder PII.'),
+  wasVisaCe3: z.boolean().optional().describe('Whether dispute was Visa CE 3.0.'),
+  disputeAmountUsdCents: z
+    .number()
+    .int()
+    .optional()
+    .describe('Dispute amount in USD cents.'),
+});
+
+const listDisputeOutcomesInputSchema = z.object({
+  outcome: z
+    .enum(['won', 'lost', 'withdrawn', 'pending', 'unknown'])
+    .optional()
+    .describe('Filter by outcome category.'),
+  merchantLocale: z
+    .string()
+    .optional()
+    .describe('Filter by locale (e.g. en, es-MX, pt-BR).'),
+  limit: z
+    .number()
+    .int()
+    .min(1)
+    .max(1000)
+    .optional()
+    .describe('Max number of records to return. Default 100.'),
+});
+
 const verifyManifestInputSchema = z.object({
   manifest: z
     .object({
@@ -270,6 +333,35 @@ const tools = [
     inputSchema: zodToJsonSchema(verifyChainInputSchema),
   },
   {
+    name: 'validate_bundle_sanity',
+    description:
+      'Run logical-consistency checks on a CustomerEvidenceBundle BEFORE ' +
+      'staging. Returns findings sorted by severity (block / warn / info). ' +
+      'Catches structurally-valid-but-impossible states like signupTimestamp ' +
+      'AFTER the disputed transaction, priors outside the 120-364 day window, ' +
+      'or wasDisputed=true on a prior. Pure deterministic logic; no LLM, no ' +
+      'fabrication scoring. Merchant decides whether to proceed.',
+    inputSchema: zodToJsonSchema(validateBundleSanityInputSchema),
+  },
+  {
+    name: 'record_dispute_outcome',
+    description:
+      'Record the final outcome (won/lost/withdrawn/pending) for a dispute ' +
+      'in the in-memory outcome recorder for this MCP session. Production ' +
+      'users plug in PostgresOutcomeRecorder via the lib API for persistence. ' +
+      'Outcome capture is OPT-IN; the publisher does not collect outcomes. ' +
+      'Recorded outcomes never leave the merchant infrastructure.',
+    inputSchema: zodToJsonSchema(recordDisputeOutcomeInputSchema),
+  },
+  {
+    name: 'list_dispute_outcomes',
+    description:
+      'List recorded outcomes from the in-memory outcome recorder. Optional ' +
+      'filters: outcome category, merchant locale, limit. Use this to inspect ' +
+      'what was recorded during the current MCP session.',
+    inputSchema: zodToJsonSchema(listDisputeOutcomesInputSchema),
+  },
+  {
     name: 'describe_agentguard_cb',
     description:
       'Return a high-level description of AgentGuard CB capabilities, the ' +
@@ -284,6 +376,11 @@ const tools = [
 // tool calls so an agent can append, render, and verify within one session.
 // Production users swap in a persistent EventLogStore via the lib API.
 const eventStore = new InMemoryEventLogStore();
+
+// ─── Process-level outcome recorder ───────────────────────────────────────
+// In-memory recorder for this MCP session. Production users plug in a
+// PostgresOutcomeRecorder via the lib API for persistent storage.
+const outcomeRecorder = new InMemoryOutcomeRecorder();
 
 // ─── Tool handlers ────────────────────────────────────────────────────────
 
@@ -453,6 +550,75 @@ async function handleVerifyChain(args: unknown): Promise<CallToolResult> {
   }
 }
 
+async function handleValidateBundleSanity(args: unknown): Promise<CallToolResult> {
+  const wrapped = validateBundleSanityInputSchema.safeParse(args);
+  if (!wrapped.success) return fail(`Invalid input: ${wrapped.error.message}`);
+  const bundleParse = customerEvidenceBundleSchema.safeParse(wrapped.data.bundle);
+  if (!bundleParse.success) {
+    return fail(`bundle failed schema validation: ${bundleParse.error.message}`);
+  }
+  try {
+    const result = validateBundleSanity(bundleParse.data);
+    return ok({
+      passed: result.passed,
+      findingCount: result.findings.length,
+      findings: result.findings,
+      summary: result.passed
+        ? 'No block-severity findings. Merchant may proceed to stage.'
+        : 'Bundle has block-severity findings. Stripe is likely to reject. Review fields and re-run.',
+    });
+  } catch (err) {
+    return fail(`validateBundleSanity threw: ${(err as Error).message}`);
+  }
+}
+
+async function handleRecordDisputeOutcome(args: unknown): Promise<CallToolResult> {
+  const parsed = recordDisputeOutcomeInputSchema.safeParse(args);
+  if (!parsed.success) return fail(`Invalid input: ${parsed.error.message}`);
+  try {
+    const record = {
+      disputeId: parsed.data.disputeId,
+      outcome: parsed.data.outcome as DisputeFinalOutcome,
+      recordedAt: new Date(),
+      evidencePacketHash: parsed.data.evidencePacketHash,
+      eligibilityStatusAtSubmission: parsed.data.eligibilityStatusAtSubmission,
+      merchantLocale: parsed.data.merchantLocale,
+      merchantNotes: parsed.data.merchantNotes,
+      wasVisaCe3: parsed.data.wasVisaCe3,
+      disputeAmountUsdCents: parsed.data.disputeAmountUsdCents,
+    };
+    await outcomeRecorder.record(record);
+    return ok({
+      recorded: true,
+      record,
+      note:
+        'Recorded in in-memory outcome recorder for this MCP session. For ' +
+        'persistence across restarts, wire PostgresOutcomeRecorder in your own ' +
+        'application code (see docs/migrations/agentguard_cb_dispute_outcomes.sql).',
+    });
+  } catch (err) {
+    return fail(`record_dispute_outcome threw: ${(err as Error).message}`);
+  }
+}
+
+async function handleListDisputeOutcomes(args: unknown): Promise<CallToolResult> {
+  const parsed = listDisputeOutcomesInputSchema.safeParse(args);
+  if (!parsed.success) return fail(`Invalid input: ${parsed.error.message}`);
+  try {
+    const records = await outcomeRecorder.list({
+      outcome: parsed.data.outcome,
+      merchantLocale: parsed.data.merchantLocale,
+      limit: parsed.data.limit ?? 100,
+    });
+    return ok({
+      count: records.length,
+      records,
+    });
+  } catch (err) {
+    return fail(`list_dispute_outcomes threw: ${(err as Error).message}`);
+  }
+}
+
 async function handleDescribe(): Promise<CallToolResult> {
   return ok({
     name: '@merchantguard/agentguard-cb',
@@ -575,6 +741,12 @@ async function main() {
           return await handleRenderEventLog(args);
         case 'verify_chain':
           return await handleVerifyChain(args);
+        case 'validate_bundle_sanity':
+          return await handleValidateBundleSanity(args);
+        case 'record_dispute_outcome':
+          return await handleRecordDisputeOutcome(args);
+        case 'list_dispute_outcomes':
+          return await handleListDisputeOutcomes(args);
         case 'describe_agentguard_cb':
         case 'describe_dispute_defender':
           return await handleDescribe();
