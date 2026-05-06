@@ -127,6 +127,64 @@ Same data, two audiences. The boring version earns trust before the cryptographi
 
 ---
 
+## Sanity validation (v1.2)
+
+`validateBundleSanity()` catches structurally-valid-but-logically-impossible states BEFORE you stage the dispute. Pure deterministic logic; no LLM, no fabrication scoring. Stays consistent with the *no LLM in evidence pipeline* guarantee.
+
+```ts
+import {
+  validateBundleSanity,
+  customerEvidenceBundleSchema,
+} from '@merchantguard/agentguard-cb/evidence';
+
+const bundle = customerEvidenceBundleSchema.parse(yourBundle);
+const sanity = validateBundleSanity(bundle);
+
+if (!sanity.passed) {
+  // sanity.findings is sorted block-first
+  for (const finding of sanity.findings) {
+    if (finding.severity === 'block') {
+      console.error(`[BLOCK] ${finding.ruleId}: ${finding.message}`);
+    }
+  }
+  // Caller decides whether to surface to a human, retry, or proceed.
+}
+```
+
+Catches: signupTimestamp after dispute (block), prior at-or-after dispute (block), priors outside the 120-364 day window (warn), wasDisputed=true on a prior (block), empty productDescription (block), and more. Findings are advisory — the SDK does NOT auto-reject submissions based on sanity warnings; that's the merchant's call.
+
+---
+
+## Outcome capture (v1.2)
+
+Optional opt-in hook for the data flywheel. Record what actually happened to a dispute (won / lost / withdrawn) so you can build your own learning loops. The publisher does NOT collect outcomes; recorded data stays on your infrastructure.
+
+```ts
+import {
+  PostgresOutcomeRecorder,
+  type DisputeOutcomeRecord,
+} from '@merchantguard/agentguard-cb/outcomes';
+
+const recorder = new PostgresOutcomeRecorder(yourPgClient);
+
+await recorder.record({
+  disputeId: 'dp_3Lk7P9X8nM4',
+  outcome: 'won',
+  recordedAt: new Date(),
+  evidencePacketHash: 'sha256:9c4a...f2a1',
+  eligibilityStatusAtSubmission: 'qualified',
+  merchantLocale: 'es-MX',
+  wasVisaCe3: true,
+  disputeAmountUsdCents: 4999,
+});
+```
+
+Migration: `docs/migrations/agentguard_cb_dispute_outcomes.sql`. Includes table, indexes, and an optional row-level-security comment. Compatible with any client implementing a minimal `{ query(sql, params) }` interface (node-postgres, postgres.js, Drizzle, etc).
+
+For tests / dev, use `InMemoryOutcomeRecorder` with the same interface.
+
+---
+
 ## Use from an AI agent (MCP server)
 
 AgentGuard CB ships a stdio Model Context Protocol server so AI agents (Claude Desktop, Cursor, Cline, Continue, etc.) can call its primitives during coding and ops workflows. The MCP server is **read-only and pure-functional**: it never calls the Stripe API, never writes to a database, and never submits a dispute. Submission and persistence remain the merchant's responsibility, which matches the [LEGAL.md](./LEGAL.md) posture.
@@ -140,6 +198,9 @@ AgentGuard CB ships a stdio Model Context Protocol server so AI agents (Claude D
 - `append_event` (v1.1) — append a typed event to the buyer-readable event log
 - `render_event_log` (v1.1) — render the chain in `text` (plain English), `csv`, or `json`
 - `verify_chain` (v1.1) — walk the chain and report tamper-evidence
+- `validate_bundle_sanity` (v1.2) — flag structurally-valid-but-logically-impossible states (signup-after-dispute, priors outside 120-364 day window, wasDisputed priors, etc) before staging
+- `record_dispute_outcome` (v1.2) — record a final outcome (won / lost / withdrawn / pending) in the in-memory recorder for this MCP session
+- `list_dispute_outcomes` (v1.2) — read back recorded outcomes, optionally filtered by category / locale / limit
 - `describe_agentguard_cb` — high-level capabilities, safety posture, and patent / license status
 
 **Claude Desktop install:** add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
