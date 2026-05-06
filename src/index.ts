@@ -94,3 +94,22 @@ export {
   type AppendInput,
   type ListOpts,
 } from '../lib/event-log';
+
+// ─── Sanity validation (v1.2) ─────────────────────────────────────────────
+export {
+  validateBundleSanity,
+  type SanityFinding,
+  type SanityResult,
+  type SanitySeverity,
+} from '../lib/evidence/sanity';
+
+// ─── Outcome capture (v1.2) ───────────────────────────────────────────────
+export {
+  InMemoryOutcomeRecorder,
+  PostgresOutcomeRecorder,
+  type DisputeFinalOutcome,
+  type DisputeOutcomeRecord,
+  type OutcomeFilter,
+  type OutcomeRecorder,
+  type PostgresLike,
+} from '../lib/outcomes';

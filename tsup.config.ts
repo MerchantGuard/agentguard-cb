@@ -9,6 +9,7 @@ export default defineConfig({
     adapters: 'src/adapters.ts',
     'event-log': 'src/event-log.ts',
     'mcp-server': 'src/mcp-server.ts',
+    outcomes: 'src/outcomes.ts',
   },
   format: ['esm', 'cjs'],
   dts: false,

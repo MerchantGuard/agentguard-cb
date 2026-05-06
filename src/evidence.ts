@@ -9,3 +9,4 @@
 export * from '../lib/evidence/schemas';
 export * from '../lib/evidence/ce3';
 export * from '../lib/evidence/adapter';
+export * from '../lib/evidence/sanity';

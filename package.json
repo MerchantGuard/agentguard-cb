@@ -1,6 +1,6 @@
 {
   "name": "@merchantguard/agentguard-cb",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "private": false,
   "description": "Open-source CE 3.0 evidence SDK for Stripe disputes. MIT licensed. No LLM in the evidence pipeline.",
   "license": "MIT",
@@ -74,6 +74,11 @@
       "types": "./dist/mcp-server.d.ts",
       "import": "./dist/mcp-server.js",
       "require": "./dist/mcp-server.cjs"
+    },
+    "./outcomes": {
+      "types": "./dist/outcomes.d.ts",
+      "import": "./dist/outcomes.js",
+      "require": "./dist/outcomes.cjs"
     },
     "./package.json": "./package.json"
   },
