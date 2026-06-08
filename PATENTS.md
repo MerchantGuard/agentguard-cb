@@ -31,4 +31,4 @@ This file is intended to provide accurate, current information about pending pat
 
 ## Trademarks
 
-MerchantGuard™ (USPTO Serial No. 99051215), GuardScore™ (USPTO Serial No. 99030125), and AgentGuard® (USPTO Serial No. 99462472) are pending USPTO trademark applications of Dunecrest Ventures Inc. Third-party trademarks referenced in this Software are used nominatively under the Lanham Act and the doctrine articulated in *New Kids on the Block v. News America Publ'g, Inc.*, 971 F.2d 302 (9th Cir. 1992), and do not imply endorsement.
+AgentGuard® (USPTO Serial No. 99462472) is a registered trademark of Dunecrest Ventures Inc. MerchantGuard™ (USPTO Serial No. 99051215) and GuardScore™ (USPTO Serial No. 99030125) are pending USPTO trademark applications of Dunecrest Ventures Inc. Third-party trademarks referenced in this Software are used nominatively under the Lanham Act and the doctrine articulated in *New Kids on the Block v. News America Publ'g, Inc.*, 971 F.2d 302 (9th Cir. 1992), and do not imply endorsement.
